@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Collection Form</title>
+    <script>
+        const departments = {
+            "Dept A": Array.from({ length: 40 }, (_, i) => i + 1),
+            "Dept B": Array.from({ length: 30 }, (_, i) => i + 1)
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadDepartments();
+            loadOfflineSubmissions();
+            syncOfflineData();
+        });
+
+        function loadDepartments() {
+            let deptSelect = document.getElementById("dept");
+            for (let dept in departments) {
+                let option = new Option(dept, dept);
+                deptSelect.add(option);
+            }
+            deptSelect.addEventListener("change", updateStalls);
+        }
+
+        function updateStalls() {
+            let stallSelect = document.getElementById("stall");
+            stallSelect.innerHTML = "";
+            let selectedDept = document.getElementById("dept").value;
+            departments[selectedDept].forEach(stall => {
+                let option = new Option(stall, stall);
+                stallSelect.add(option);
+            });
+        }
+
+        function saveData() {
+            const timestamp = new Date().toLocaleString();
+            let data = {
+                timestamp,
+                stall: document.getElementById("stall").value,
+                cashType: document.getElementById("cashType").value,
+                amount: document.getElementById("amount").value,
+                period: document.getElementById("period").value,
+                dept: document.getElementById("dept").value
+            };
+
+            saveToIndexedDB(data);
+        }
+
+        function saveToIndexedDB(data) {
+            let request = indexedDB.open("MoneyCollectionDB", 1);
+            request.onupgradeneeded = function(event) {
+                let db = event.target.result;
+                if (!db.objectStoreNames.contains("submissions")) {
+                    db.createObjectStore("submissions", { autoIncrement: true });
+                }
+            };
+            request.onsuccess = function(event) {
+                let db = event.target.result;
+                let transaction = db.transaction("submissions", "readwrite");
+                let store = transaction.objectStore("submissions");
+                store.add(data);
+                alert("Submission saved offline!");
+                document.getElementById("moneyForm").reset();
+                updateStalls();
+            };
+        }
+
+        function syncOfflineData() {
+            let request = indexedDB.open("MoneyCollectionDB", 1);
+            request.onsuccess = function(event) {
+                let db = event.target.result;
+                let transaction = db.transaction("submissions", "readonly");
+                let store = transaction.objectStore("submissions");
+                let getAll = store.getAll();
+
+                getAll.onsuccess = function() {
+                    if (getAll.result.length > 0 && navigator.onLine) {
+                        getAll.result.forEach(data => sendToGoogleSheets(data));
+                        clearIndexedDB();
+                    }
+                };
+            };
+        }
+
+        function sendToGoogleSheets(data) {
+            fetch("https://script.google.com/macros/s/AKfycbw1R2GIEpK8kwXyvSocufNukmzwd42XN1kEb_Kx9VvmLmQbpRBgsT1WcVweI-VhG5AG/exec", {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: { "Content-Type": "application/json" }
+            })
+            .then(response => response.text())
+            .then(result => console.log("Synced:", result))
+            .catch(error => console.error("Sync Error:", error));
+        }
+
+        function clearIndexedDB() {
+            let request = indexedDB.open("MoneyCollectionDB", 1);
+            request.onsuccess = function(event) {
+                let db = event.target.result;
+                let transaction = db.transaction("submissions", "readwrite");
+                let store = transaction.objectStore("submissions");
+                store.clear();
+            };
+        }
+
+        window.addEventListener("online", syncOfflineData);
+    </script>
+</head>
+<body>
+    <h2>Money Collection Form</h2>
+    <form id="moneyForm" onsubmit="saveData(); return false;">
+        <label for="dept">Department:</label>
+        <select id="dept">
+            <option value="" disabled selected>Select Dept</option>
+        </select>
+
+        <label for="stall">Stall Number:</label>
+        <select id="stall">
+            <option value="" disabled selected>Select Stall</option>
+        </select>
+
+        <label for="cashType">Payment Method:</label>
+        <select id="cashType">
+            <option value="Cash">Cash</option>
+            <option value="Cashless">Cashless</option>
+        </select>
+
+        <label for="amount">Amount Paid:</label>
+        <input type="number" id="amount" required>
+
+        <label for="period">For Which Period:</label>
+        <select id="period">
+            <option value="Jan 1">Jan 1</option>
+            <option value="Jan 2">Jan 2</option>
+            <option value="Feb 1">Feb 1</option>
+            <option value="Feb 2">Feb 2</option>
+            <option value="Mar 1">Mar 1</option>
+            <option value="Mar 2">Mar 2</option>
+        </select>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
