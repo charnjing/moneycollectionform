@@ -4,144 +4,332 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Money Collection Form</title>
-    <script>
-        const departments = {
-            "Dept A": Array.from({ length: 40 }, (_, i) => i + 1),
-            "Dept B": Array.from({ length: 30 }, (_, i) => i + 1)
-        };
-
-        document.addEventListener("DOMContentLoaded", () => {
-            loadDepartments();
-            loadOfflineSubmissions();
-            syncOfflineData();
-        });
-
-        function loadDepartments() {
-            let deptSelect = document.getElementById("dept");
-            for (let dept in departments) {
-                let option = new Option(dept, dept);
-                deptSelect.add(option);
-            }
-            deptSelect.addEventListener("change", updateStalls);
+    <style>
+        /* Global styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+            overflow: hidden; /* Prevents body from scrolling */
         }
 
-        function updateStalls() {
-            let stallSelect = document.getElementById("stall");
-            stallSelect.innerHTML = "";
-            let selectedDept = document.getElementById("dept").value;
-            departments[selectedDept].forEach(stall => {
-                let option = new Option(stall, stall);
-                stallSelect.add(option);
+        .form-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            max-height: 90vh; /* Limit form height */
+            overflow-y: auto; /* Enables scroll if content overflows */
+        }
+
+        h1 {
+            color: #6a1b9a;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        select, input, button {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 20px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 1em;
+        }
+
+        select, input {
+            background-color: #fafafa;
+        }
+
+        button {
+            background-color: #6a1b9a;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #9c4dcc;
+        }
+
+        /* Sync Message */
+        #sync-message {
+            color: green;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        /* Popup styles */
+        #popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 999;
+            text-align: center;
+        }
+
+        #popup button {
+            margin-top: 10px;
+            background-color: #6a1b9a;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        #popup button:hover {
+            background-color: #9c4dcc;
+        }
+
+        /* Admin Edit Section */
+        .admin-edit-section {
+            display: none;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .admin-edit-section label {
+            font-size: 1.1em;
+        }
+
+        .admin-edit-section input {
+            margin: 5px 0;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 600px) {
+            .form-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Money Collection Form</h1>
+        <form id="submission-form">
+            <label for="date-time">Date and Time:</label>
+            <input type="text" id="date-time" name="date-time" value="" readonly>
+
+            <label for="dept">Department:</label>
+            <select id="dept" name="dept">
+                <option value="HR">HR</option>
+                <option value="Finance">Finance</option>
+                <option value="Engineering">Engineering</option>
+            </select>
+
+            <label for="stall">Stall Number:</label>
+            <select id="stall" name="stall">
+                <option value="Stall 1">Stall 1</option>
+                <option value="Stall 2">Stall 2</option>
+                <option value="Stall 3">Stall 3</option>
+            </select>
+
+            <label for="payment">Payment Method:</label>
+            <select id="payment" name="payment">
+                <option value="cash">Cash</option>
+                <option value="cashless">Cashless</option>
+            </select>
+
+            <label for="amount">Amount:</label>
+            <input type="number" id="amount" name="amount" step="0.01" required>
+
+            <button type="submit" id="submit-button">Submit</button>
+        </form>
+
+        <!-- Sync Status Message -->
+        <div id="sync-message"></div>
+
+        <!-- Popup for submission status -->
+        <div id="popup">
+            <p id="popup-message"></p>
+            <button id="close-popup">Close</button>
+        </div>
+
+        <!-- Admin Edit Section -->
+        <div class="admin-edit-section" id="admin-edit-section">
+            <label for="admin-password">Admin Password:</label>
+            <input type="password" id="admin-password" placeholder="Enter password" />
+
+            <button type="button" id="edit-btn">Edit Dropdown Options</button>
+
+            <div id="edit-options">
+                <label for="edit-dept">Edit Departments:</label>
+                <input type="text" id="edit-dept" placeholder="Add departments, comma separated" />
+
+                <label for="edit-stall">Edit Stalls:</label>
+                <input type="text" id="edit-stall" placeholder="Add stall numbers, comma separated" />
+
+                <button type="button" id="save-edit">Save Changes</button>
+            </div>
+        </div>
+
+        <button type="button" id="admin-toggle" onclick="toggleAdminSection()">Admin Edit</button>
+    </div>
+
+    <script>
+        const form = document.getElementById('submission-form');
+        const submitButton = document.getElementById('submit-button');
+        const syncMessage = document.getElementById('sync-message');
+        const popup = document.getElementById('popup');
+        const popupMessage = document.getElementById('popup-message');
+        const closePopupButton = document.getElementById('close-popup');
+        
+        const dateTimeField = document.getElementById('date-time');
+        const deptDropdown = document.getElementById('dept');
+        const stallDropdown = document.getElementById('stall');
+        const paymentDropdown = document.getElementById('payment');
+        const amountInput = document.getElementById('amount');
+        
+        // Admin Edit Section
+        const adminPasswordField = document.getElementById('admin-password');
+        const adminToggleButton = document.getElementById('admin-toggle');
+        const adminEditSection = document.getElementById('admin-edit-section');
+        const editDeptField = document.getElementById('edit-dept');
+        const editStallField = document.getElementById('edit-stall');
+        const saveEditButton = document.getElementById('save-edit');
+        const editOptionsSection = document.getElementById('edit-options');
+
+        // Set current date and time
+        const currentDate = new Date();
+        dateTimeField.value = currentDate.toLocaleString();
+
+        // Handle form submission
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+            const dateTime = formData.get('date-time');
+            const dept = formData.get('dept');
+            const stall = formData.get('stall');
+            const payment = formData.get('payment');
+            const amount = formData.get('amount');
+
+            // Disable submit button after submission
+            submitButton.disabled = true;
+
+            // Save form data to localStorage (Offline functionality)
+            const submissions = JSON.parse(localStorage.getItem('submissions')) || [];
+            submissions.push({ dateTime, dept, stall, payment, amount });
+            localStorage.setItem('submissions', JSON.stringify(submissions));
+
+            // Show popup for offline submission
+            showPopup('Submission received. Will be synced when online.');
+
+            // Sync to Google Sheets (if online)
+            if (!navigator.onLine) {
+                // Don't try to sync right away if offline.
+            } else {
+                syncToGoogleSheets(dateTime, dept, stall, payment, amount);
+            }
+        });
+
+        // Sync Data to Google Sheets
+        function syncToGoogleSheets(dateTime, dept, stall, payment, amount) {
+            const webAppUrl = 'https://script.google.com/macros/s/AKfycbwKOFrxKeaRBeHZgMc1Eds2zXvNkx3_JGqeBFWzb0OhvWvZrhkc0Y6y02sE8fhyHMCe/exec';
+            const payload = { dateTime, dept, stall, payment, amount };
+
+            fetch(webAppUrl, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                showPopup('Submission successfully synced.');
+                submitButton.disabled = false;
+            })
+            .catch(() => {
+                showPopup('Error syncing submission.');
+                submitButton.disabled = false;
             });
         }
 
-        function saveData() {
-            const timestamp = new Date().toLocaleString();
-            let data = {
-                timestamp,
-                stall: document.getElementById("stall").value,
-                cashType: document.getElementById("cashType").value,
-                amount: document.getElementById("amount").value,
-                period: document.getElementById("period").value,
-                dept: document.getElementById("dept").value
-            };
-
-            saveToIndexedDB(data);
+        // Show popup with a message
+        function showPopup(message) {
+            popupMessage.textContent = message;
+            popup.style.display = 'block';
         }
 
-        function saveToIndexedDB(data) {
-            let request = indexedDB.open("MoneyCollectionDB", 1);
-            request.onupgradeneeded = function(event) {
-                let db = event.target.result;
-                if (!db.objectStoreNames.contains("submissions")) {
-                    db.createObjectStore("submissions", { autoIncrement: true });
-                }
-            };
-            request.onsuccess = function(event) {
-                let db = event.target.result;
-                let transaction = db.transaction("submissions", "readwrite");
-                let store = transaction.objectStore("submissions");
-                store.add(data);
-                alert("Submission saved offline!");
-                document.getElementById("moneyForm").reset();
-                updateStalls();
-            };
+        // Close popup
+        closePopupButton.addEventListener('click', () => {
+            popup.style.display = 'none';
+        });
+
+        // Toggle admin edit section visibility
+        function toggleAdminSection() {
+            const password = adminPasswordField.value;
+
+            // Check if the admin password is correct
+            if (password === 'admin123') {
+                adminEditSection.style.display = 'block';
+                adminToggleButton.style.display = 'none';
+            } else {
+                alert('Incorrect password.');
+            }
         }
 
-        function syncOfflineData() {
-            let request = indexedDB.open("MoneyCollectionDB", 1);
-            request.onsuccess = function(event) {
-                let db = event.target.result;
-                let transaction = db.transaction("submissions", "readonly");
-                let store = transaction.objectStore("submissions");
-                let getAll = store.getAll();
+        // Save edited department and stall options
+        saveEditButton.addEventListener('click', () => {
+            const deptOptions = editDeptField.value.split(',').map(d => d.trim());
+            const stallOptions = editStallField.value.split(',').map(s => s.trim());
 
-                getAll.onsuccess = function() {
-                    if (getAll.result.length > 0 && navigator.onLine) {
-                        getAll.result.forEach(data => sendToGoogleSheets(data));
-                        clearIndexedDB();
-                    }
-                };
-            };
+            // Update department and stall dropdown options
+            deptDropdown.innerHTML = deptOptions.map(option => `<option value="${option}">${option}</option>`).join('');
+            stallDropdown.innerHTML = stallOptions.map(option => `<option value="${option}">${option}</option>`).join('');
+
+            alert('Options saved successfully.');
+        });
+
+        // Sync submissions if online (on page load)
+        window.addEventListener('load', () => {
+            if (navigator.onLine) {
+                syncOfflineSubmissions();
+            } else {
+                window.addEventListener('online', syncOfflineSubmissions);
+            }
+        });
+
+        // Sync offline submissions when the user is back online
+        function syncOfflineSubmissions() {
+            const submissions = JSON.parse(localStorage.getItem('submissions')) || [];
+
+            if (submissions.length > 0) {
+                submissions.forEach(submission => {
+                    syncToGoogleSheets(submission.dateTime, submission.dept, submission.stall, submission.payment, submission.amount);
+                });
+                localStorage.removeItem('submissions'); // Clear local storage after syncing
+            }
         }
-
-        function sendToGoogleSheets(data) {
-            fetch("https://script.google.com/macros/s/AKfycbw1R2GIEpK8kwXyvSocufNukmzwd42XN1kEb_Kx9VvmLmQbpRBgsT1WcVweI-VhG5AG/exec", {
-                method: "POST",
-                body: JSON.stringify(data),
-                headers: { "Content-Type": "application/json" }
-            })
-            .then(response => response.text())
-            .then(result => console.log("Synced:", result))
-            .catch(error => console.error("Sync Error:", error));
-        }
-
-        function clearIndexedDB() {
-            let request = indexedDB.open("MoneyCollectionDB", 1);
-            request.onsuccess = function(event) {
-                let db = event.target.result;
-                let transaction = db.transaction("submissions", "readwrite");
-                let store = transaction.objectStore("submissions");
-                store.clear();
-            };
-        }
-
-        window.addEventListener("online", syncOfflineData);
     </script>
-</head>
-<body>
-    <h2>Money Collection Form</h2>
-    <form id="moneyForm" onsubmit="saveData(); return false;">
-        <label for="dept">Department:</label>
-        <select id="dept">
-            <option value="" disabled selected>Select Dept</option>
-        </select>
-
-        <label for="stall">Stall Number:</label>
-        <select id="stall">
-            <option value="" disabled selected>Select Stall</option>
-        </select>
-
-        <label for="cashType">Payment Method:</label>
-        <select id="cashType">
-            <option value="Cash">Cash</option>
-            <option value="Cashless">Cashless</option>
-        </select>
-
-        <label for="amount">Amount Paid:</label>
-        <input type="number" id="amount" required>
-
-        <label for="period">For Which Period:</label>
-        <select id="period">
-            <option value="Jan 1">Jan 1</option>
-            <option value="Jan 2">Jan 2</option>
-            <option value="Feb 1">Feb 1</option>
-            <option value="Feb 2">Feb 2</option>
-            <option value="Mar 1">Mar 1</option>
-            <option value="Mar 2">Mar 2</option>
-        </select>
-
-        <button type="submit">Submit</button>
-    </form>
 </body>
 </html>
