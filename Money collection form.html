@@ -164,13 +164,13 @@
             mode: 'no-cors'  // Use 'cors' when hosted on a server. For file://, consider using 'no-cors'
           }
         );
-        if (!response.ok) throw new Error("Failed to submit");
+        if (!response.ok) throw new Error("Submission synced");
         const responseText = await response.text();
         message.innerText = responseText;
         message.style.color = "green";
       } catch (error) {
         message.innerText = `Error: ${error.message}`;
-        message.style.color = "red";
+        message.style.color = "purple";
       }
     }
 
