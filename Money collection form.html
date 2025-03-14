@@ -159,11 +159,9 @@
           "https://script.google.com/macros/s/AKfycbzO0IyohC_mlVcI_VowvL1NIwdHOAi4EeNNKN4IEpvbdMdiyCZKweAFj14nFkyglrO4/exec",
           {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
-            mode: 'cors'  // Ensure CORS is explicitly set for the request
+            mode: 'cors'  // Use 'cors' when hosted on a server. For file://, consider using 'no-cors'
           }
         );
         if (!response.ok) throw new Error("Failed to submit");
