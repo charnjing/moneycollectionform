@@ -156,12 +156,12 @@
     async function sendData(data) {
       try {
         const response = await fetch(
-          "https://script.google.com/macros/s/AKfycbzO0IyohC_mlVcI_VowvL1NIwdHOAi4EeNNKN4IEpvbdMdiyCZKweAFj14nFkyglrO4/exec",
+          "https://script.google.com/macros/s/AKfycbzn2cwAXs0F-LJKjgbjCeHQDvHN9uRjK3pcp71x0ojw-Q4C2I19sP1uvPCXPJP3V4Xd/exec",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
-            mode: 'no-cors'  // Use 'cors' when hosted on a server. For file://, consider using 'no-cors'
+            mode: 'cors'  // Use 'cors' when hosted on a server. For file://, consider using 'no-cors'
           }
         );
         if (!response.ok) throw new Error("Failed to submit");
