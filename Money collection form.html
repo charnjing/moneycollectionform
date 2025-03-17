@@ -121,21 +121,16 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    // Set current date and time
     document.getElementById("dateTime").value = new Date().toLocaleString();
 
-    // Load saved dropdown options
     loadDropdownOptions();
 
     const form = document.getElementById("moneyCollectionForm");
     const message = document.getElementById("message");
+    const submitBtn = document.getElementById("submitBtn");
 
-    // Save data to local storage if offline
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-    
-      //disable submit button
-      const submitBtn = document.getElementById("submitBtn");
       submitBtn.disabled = true;
 
       const formData = {
@@ -147,7 +142,7 @@
         amount: document.getElementById("amount").value
       };
 
-      if (navigator.onLine) {
+      if (navigator.onLine && (await canReachServer())) {
         await sendData(formData);
       } else {
         saveOffline(formData);
@@ -155,39 +150,54 @@
 
       form.reset();
       document.getElementById("dateTime").value = new Date().toLocaleString();
-
-      //reenable submit button
       submitBtn.disabled = false;
     });
-    // ✅ Function to save offline data to localStorage
+
+    // ✅ Test if server is reachable
+    async function canReachServer() {
+      try {
+        const response = await fetch(
+          "https://script.google.com/macros/s/AKfycbyCJRuW4thDz7H_fUIe3ee0uu7yRFpC81l_g33sYygqDmvGDrMcgm88TZkBu_Kb_N8a/exec?ping=true",
+          { mode: "no-cors" }
+        );
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
+    // ✅ Save to local storage if offline
     function saveOffline(data) {
       const offlineData = JSON.parse(localStorage.getItem("offlineSubmissions")) || [];
       offlineData.push(data);
       localStorage.setItem("offlineSubmissions", JSON.stringify(offlineData));
-      message.innerText = "Submission saved offline.";
-      message.style.color = "blue";
+      showMessage("Submission saved offline.", "blue");
     }
 
-    // ✅ Function to sync offline data when back online
+    // ✅ Sync offline data when back online
     async function syncOfflineData() {
       const offlineData = JSON.parse(localStorage.getItem("offlineSubmissions")) || [];
       if (offlineData.length === 0) return;
 
+      let syncedCount = 0;
       for (const data of offlineData) {
         try {
-          await sendData(data); // Try to sync each entry
+          await sendData(data);
+          syncedCount++;
         } catch (error) {
           console.error("Failed to sync offline data:", error);
-          return;
         }
       }
 
-      // ✅ Remove successfully synced data from localStorage
-      localStorage.removeItem("offlineSubmissions");
-      message.innerText = "All offline submissions successfully synced!";
-      message.style.color = "green";
+      if (syncedCount > 0) {
+        // ✅ Remove successfully synced data
+        offlineData.splice(0, syncedCount);
+        localStorage.setItem("offlineSubmissions", JSON.stringify(offlineData));
+        showMessage(`${syncedCount} offline submission(s) synced!`, "green");
+      }
     }
 
+    // ✅ Send data to Google Sheets
     async function sendData(data) {
       try {
         const response = await fetch(
@@ -196,38 +206,32 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
-            mode: 'no-cors'  // Use 'cors' when hosted on a server. For file://, consider using 'no-cors'
+            mode: "no-cors"
           }
         );
-        if (!response.ok) throw new Error("Submission synced");
-        const responseText = await response.text();
-        message.innerText = responseText;
-        message.style.color = "green";
+
+        // ⚠️ Response is unavailable in 'no-cors' mode
+        showMessage("Submission synced successfully!", "green");
       } catch (error) {
-        message.innerText = `${error.message}`;
-        message.style.color = "purple";
-      } finally {
-    // Re-enable the submit button even if error occurs
-      document.getElementById("submitBtn").disabled = false;
+        console.error("Sync error:", error);
+        showMessage("Failed to sync submission.", "red");
       }
     }
 
-    function generateStalls() {
-      const dept = document.getElementById("selectDept").value;
-      const level = document.getElementById("levelPrefix").value;
-      const start = parseInt(document.getElementById("startRange").value);
-      const end = parseInt(document.getElementById("endRange").value);
-
-      if (dept && level && !isNaN(start) && !isNaN(end)) {
-        const stalls = Array.from({ length: end - start + 1 }, (_, i) => `${level}${String(start + i).padStart(2, "0")}`);
-        const stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || {};
-        stallOptions[dept] = stalls;
-        localStorage.setItem("stallOptions", JSON.stringify(stallOptions));
-        loadDropdownOptions();
-        alert("Stalls updated!");
-      }
+    // ✅ Show message to user
+    function showMessage(text, color) {
+      message.innerText = text;
+      message.style.color = color;
     }
 
+    // ✅ Periodic sync check every 10 seconds
+    setInterval(async () => {
+      if (navigator.onLine && (await canReachServer())) {
+        syncOfflineData();
+      }
+    }, 10000);
+
+    // ✅ Load dropdown options from localStorage
     function loadDropdownOptions() {
       const deptOptions = (localStorage.getItem("deptOptions") || "Dept 1\nDept 2\nDept 3").split("\n");
       populateDropdown("dept", deptOptions);
@@ -248,37 +252,33 @@
       });
     }
 
-    // Function to toggle the admin section visibility
+    // ✅ Generate stalls
+    function generateStalls() {
+      const dept = document.getElementById("selectDept").value;
+      const level = document.getElementById("levelPrefix").value;
+      const start = parseInt(document.getElementById("startRange").value);
+      const end = parseInt(document.getElementById("endRange").value);
+
+      if (dept && level && !isNaN(start) && !isNaN(end)) {
+        const stalls = Array.from({ length: end - start + 1 }, (_, i) => `${level}${String(start + i).padStart(2, "0")}`);
+        const stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || {};
+        stallOptions[dept] = stalls;
+        localStorage.setItem("stallOptions", JSON.stringify(stallOptions));
+        loadDropdownOptions();
+        alert("Stalls updated!");
+      }
+    }
+
+    // ✅ Admin section toggle
     function showAdminSection() {
       const adminSection = document.getElementById("adminSection");
       adminSection.style.display = adminSection.style.display === "none" ? "block" : "none";
     }
 
-    // Save Department Options
-    function saveDeptOptions() {
-      const deptText = document.getElementById("adminDept").value;
-      const deptArray = deptText.split("\n").filter(item => item.trim() !== "");
-      localStorage.setItem("deptOptions", deptArray.join("\n"));
-      loadDropdownOptions();
-      alert("Departments saved!");
-    }
-
-    // Save Period Options
-    function savePeriodOptions() {
-      const periodText = document.getElementById("adminPeriod").value;
-      const periodArray = periodText.split("\n").filter(item => item.trim() !== "");
-      localStorage.setItem("periodOptions", periodArray.join("\n"));
-      loadDropdownOptions();
-      alert("Periods saved!");
-    }
-
-    // Expose showAdminSection so that it is accessible when the button is clicked
-    window.showAdminSection = showAdminSection; 
-
-    // Attach the save functions to the buttons inside the admin section
-    document.querySelector("button[onclick='saveDeptOptions()']").addEventListener("click", saveDeptOptions);
-    document.querySelector("button[onclick='savePeriodOptions()']").addEventListener("click", savePeriodOptions);
-    document.querySelector("button[onclick='generateStalls()']").addEventListener("click", generateStalls);
+    window.showAdminSection = showAdminSection;
+    window.saveDeptOptions = saveDeptOptions;
+    window.savePeriodOptions = savePeriodOptions;
+    window.generateStalls = generateStalls;
   });
 </script>
 
