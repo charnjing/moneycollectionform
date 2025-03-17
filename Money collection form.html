@@ -133,6 +133,10 @@
     // Save data to local storage if offline
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+    
+      //disable submit button
+      const submitBtn = document.getElementById("submitBtn");
+      submitBtn.disabled = true;
 
       const formData = {
         dateTime: document.getElementById("dateTime").value,
@@ -151,6 +155,9 @@
 
       form.reset();
       document.getElementById("dateTime").value = new Date().toLocaleString();
+
+      //reenable submit button
+      submitBtn.disabled = false;
     });
 
     async function sendData(data) {
@@ -171,7 +178,9 @@
       } catch (error) {
         message.innerText = `${error.message}`;
         message.style.color = "purple";
-      }
+      } finally {
+    // Re-enable the submit button even if error occurs
+      document.getElementById("submitBtn").disabled = false;
     }
 
     function generateStalls() {
