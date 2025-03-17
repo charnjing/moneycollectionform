@@ -196,7 +196,7 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data),
-            mode: 'cors'  // Use 'cors' when hosted on a server. For file://, consider using 'no-cors'
+            mode: 'no-cors'  // Use 'cors' when hosted on a server. For file://, consider using 'no-cors'
           }
         );
         if (!response.ok) throw new Error("Submission synced");
