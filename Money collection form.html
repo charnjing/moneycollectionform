@@ -159,6 +159,34 @@
       //reenable submit button
       submitBtn.disabled = false;
     });
+    // ✅ Function to save offline data to localStorage
+    function saveOffline(data) {
+      const offlineData = JSON.parse(localStorage.getItem("offlineSubmissions")) || [];
+      offlineData.push(data);
+      localStorage.setItem("offlineSubmissions", JSON.stringify(offlineData));
+      message.innerText = "Submission saved offline.";
+      message.style.color = "blue";
+    }
+
+    // ✅ Function to sync offline data when back online
+    async function syncOfflineData() {
+      const offlineData = JSON.parse(localStorage.getItem("offlineSubmissions")) || [];
+      if (offlineData.length === 0) return;
+
+      for (const data of offlineData) {
+        try {
+          await sendData(data); // Try to sync each entry
+        } catch (error) {
+          console.error("Failed to sync offline data:", error);
+          return;
+        }
+      }
+
+      // ✅ Remove successfully synced data from localStorage
+      localStorage.removeItem("offlineSubmissions");
+      message.innerText = "All offline submissions successfully synced!";
+      message.style.color = "green";
+    }
 
     async function sendData(data) {
       try {
