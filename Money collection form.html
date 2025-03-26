@@ -60,6 +60,11 @@
   <label for="dept">Department:</label>
   <select id="dept" name="dept" required>
     <option value="">Select Department</option>
+    <option value="TPY Lor 8 Table Cleaning">TPY Lor 8 Table Cleaning</option>
+    <option value="TPY Lor 8 Dishwashing">TPY Lor 8 Dishwashing</option>
+    <option value="TPY Lor 8 Utensils Rental">TPY Lor 8 Utensils Rental</option>
+    <option value="TPY Lor 4 Table Cleaning">TPY Lor 4 Table Cleaning</option>
+  </select>
   </select>
 
   <label for="stall">Stall Number:</label>
@@ -101,8 +106,16 @@
   <label for="selectDept">Select Department:</label>
   <select id="selectDept">
     <option value="">Select Department</option>
+    <option value="TPY Lor 8 Table Cleaning">TPY Lor 8 Table Cleaning</option>
+    <option value="TPY Lor 8 Dishwashing">TPY Lor 8 Dishwashing</option>
+    <option value="TPY Lor 8 Utensils Rental">TPY Lor 8 Utensils Rental</option>
+    <option value="TPY Lor 4 Table Cleaning">TPY Lor 4 Table Cleaning</option>
   </select>
+  <label for="adminStall">Stalls (one per line):</label>
+  <textarea id="adminStall" rows="10"></textarea>
+  <button onclick="saveStallOptions()">Save Stall Options</button>
 
+  
   <label for="levelPrefix">Level Prefix:</label>
   <input type="text" id="levelPrefix" placeholder="#02-" />
 
@@ -236,7 +249,7 @@
       const deptOptions = (localStorage.getItem("deptOptions") || "Dept 1\nDept 2\nDept 3").split("\n");
       populateDropdown("dept", deptOptions);
       populateDropdown("selectDept", deptOptions);
-      populateDropdown("period", ["Jan 1", "Jan 2", "Feb 1", "Feb 2", "Mar 1", "Mar 2"]);
+      populateDropdown("period", ["Jan 1", "Jan 2", "Feb 1", "Feb 2", "Mar 1", "Mar 2", "Apr 1", "Apr 2", "May 1", "May 2", "Jun 1", "Jun 2", "Jul 1", "Jul 2", "Aug 1", "Aug 2", "Sep 1", "Sep 2", "Oct 1", "Oct 2", "Nov 1", "Nov 2", "Dec 1", "Dec 2"]);
 
       const stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || {};
       document.getElementById("dept").addEventListener("change", () => {
@@ -269,6 +282,21 @@
       }
     }
 
+    // Save stall options from admin section
+    function saveStallOptions() {
+      const dept = document.getElementById("selectDept").value;
+      const stalls = document.getElementById("adminStall").value.split("\n").filter(Boolean);
+      
+      if (dept && stalls.length > 0) {
+        const stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || {};
+        stallOptions[dept] = stalls;
+        localStorage.setItem("stallOptions", JSON.stringify(stallOptions));
+        loadDropdownOptions();
+        alert("Stall options saved!");
+      }
+    }
+
+    
     // ✅ Load existing options into the admin section when shown
     function showAdminSection() {
       const adminSection = document.getElementById("adminSection");
@@ -276,8 +304,18 @@
     
       if (adminSection.style.display === "block") {
         // Load existing department options into the adminDept field
-        const deptOptions = (localStorage.getItem("deptOptions") || "").split("\n").filter(Boolean);
+        const deptOptions = [
+          "TPY Lor 8 Table Cleaning",
+          "TPY Lor 8 Dishwashing",
+          "TPY Lor 8 Utensils Rental",
+          "TPY Lor 4 Table Cleaning"
+        ];
         document.getElementById("adminDept").value = deptOptions.join("\n");
+    
+        // Load existing stall options into the adminStall field
+        const dept = document.getElementById("selectDept").value;
+        const stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || {};
+        document.getElementById("adminStall").value = (stallOptions[dept] || []).join("\n");
     
         // Load existing period options into the adminPeriod field
         const periodOptions = (localStorage.getItem("periodOptions") || "").split("\n").filter(Boolean);
@@ -309,8 +347,14 @@
     
       const periodOptions = (localStorage.getItem("periodOptions") || "Jan 1\nJan 2\nFeb 1\nFeb 2").split("\n").filter(Boolean);
       populateDropdown("period", periodOptions);
-    
-      const stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || {};
+
+      const fixedStallOptions = {
+        "TPY Lor 8 Table Cleaning": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, '0')}`),
+        "TPY Lor 8 Dishwashing": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, '0')}`),
+        "TPY Lor 8 Utensils Rental": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, '0')}`),
+        "TPY Lor 4 Table Cleaning": Array.from({ length: 28 }, (_, i) => `#01-${String(i + 33).padStart(2, '0')}`)
+      };
+      const stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || fixedStallOptions; {};
       document.getElementById("dept").addEventListener("change", () => {
         populateDropdown("stall", stallOptions[document.getElementById("dept").value] || []);
       });
