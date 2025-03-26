@@ -60,10 +60,6 @@
   <label for="dept">Department:</label>
   <select id="dept" name="dept" required>
     <option value="">Select Department</option>
-    <option value="TPY Lor 8 Table Cleaning">TPY Lor 8 Table Cleaning</option>
-    <option value="TPY Lor 8 Dishwashing">TPY Lor 8 Dishwashing</option>
-    <option value="TPY Lor 8 Utensils Rental">TPY Lor 8 Utensils Rental</option>
-    <option value="TPY Lor 4 Table Cleaning">TPY Lor 4 Table Cleaning</option>
   </select>
 
   <label for="stall">Stall Number:</label>
@@ -105,14 +101,7 @@
   <label for="selectDept">Select Department:</label>
   <select id="selectDept">
     <option value="">Select Department</option>
-    <option value="TPY Lor 8 Table Cleaning">TPY Lor 8 Table Cleaning</option>
-    <option value="TPY Lor 8 Dishwashing">TPY Lor 8 Dishwashing</option>
-    <option value="TPY Lor 8 Utensils Rental">TPY Lor 8 Utensils Rental</option>
-    <option value="TPY Lor 4 Table Cleaning">TPY Lor 4 Table Cleaning</option>
   </select>
-  <label for="adminStall">Stalls (one per line):</label>
-  <textarea id="adminStall" rows="10"></textarea>
-  <button onclick="saveStallOptions()">Save Stall Options</button>
 
   <label for="levelPrefix">Level Prefix:</label>
   <input type="text" id="levelPrefix" placeholder="#02-" />
@@ -204,7 +193,7 @@
         // ✅ Remove successfully synced data
         offlineData.splice(0, syncedCount);
         localStorage.setItem("offlineSubmissions", JSON.stringify(offlineData));
-        showMessage(`${syncedCount} offline submission(s) synced!`, "green");
+        showMessage(${syncedCount} offline submission(s) synced!, "green");
       }
     }
 
@@ -221,128 +210,126 @@
           }
         );
 
+        // ⚠️ Response is unavailable in 'no-cors' mode
         showMessage("Submission synced successfully!", "green");
       } catch (error) {
-        console.error("Failed to send data:", error);
+        console.error("Sync error:", error);
+        showMessage("Failed to sync submission.", "red");
       }
     }
 
-    function showMessage(messageText, color) {
-      message.innerText = messageText;
+    // ✅ Show message to user
+    function showMessage(text, color) {
+      message.innerText = text;
       message.style.color = color;
     }
+
+    // ✅ Periodic sync check every 10 seconds
+    setInterval(async () => {
+      if (navigator.onLine && (await canReachServer())) {
+        syncOfflineData();
+      }
+    }, 10000);
+
+    // ✅ Load dropdown options from localStorage
+    function loadDropdownOptions() {
+      const deptOptions = (localStorage.getItem("deptOptions") || "Dept 1\nDept 2\nDept 3").split("\n");
+      populateDropdown("dept", deptOptions);
+      populateDropdown("selectDept", deptOptions);
+      populateDropdown("period", ["Jan 1", "Jan 2", "Feb 1", "Feb 2", "Mar 1", "Mar 2"]);
+
+      const stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || {};
+      document.getElementById("dept").addEventListener("change", () => {
+        populateDropdown("stall", stallOptions[document.getElementById("dept").value] || []);
+      });
+    }
+
+    function populateDropdown(id, options) {
+      const select = document.getElementById(id);
+      select.innerHTML = <option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>;
+      options.forEach(option => {
+        select.innerHTML += <option value="${option}">${option}</option>;
+      });
+    }
+
+    // ✅ Generate stalls
+    function generateStalls() {
+      const dept = document.getElementById("selectDept").value;
+      const level = document.getElementById("levelPrefix").value;
+      const start = parseInt(document.getElementById("startRange").value);
+      const end = parseInt(document.getElementById("endRange").value);
+
+      if (dept && level && !isNaN(start) && !isNaN(end)) {
+        const stalls = Array.from({ length: end - start + 1 }, (_, i) => ${level}${String(start + i).padStart(2, "0")});
+        const stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || {};
+        stallOptions[dept] = stalls;
+        localStorage.setItem("stallOptions", JSON.stringify(stallOptions));
+        loadDropdownOptions();
+        alert("Stalls updated!");
+      }
+    }
+
+    // ✅ Load existing options into the admin section when shown
+    function showAdminSection() {
+      const adminSection = document.getElementById("adminSection");
+      adminSection.style.display = adminSection.style.display === "none" ? "block" : "none";
+    
+      if (adminSection.style.display === "block") {
+        // Load existing department options into the adminDept field
+        const deptOptions = (localStorage.getItem("deptOptions") || "").split("\n").filter(Boolean);
+        document.getElementById("adminDept").value = deptOptions.join("\n");
+    
+        // Load existing period options into the adminPeriod field
+        const periodOptions = (localStorage.getItem("periodOptions") || "").split("\n").filter(Boolean);
+        document.getElementById("adminPeriod").value = periodOptions.join("\n");
+      }
+    }
+
+    // ✅ Save updated department options
+    function saveDeptOptions() {
+      const newDeptOptions = document.getElementById("adminDept").value.split("\n").filter(Boolean);
+      localStorage.setItem("deptOptions", newDeptOptions.join("\n"));
+      loadDropdownOptions();
+      alert("Department options saved!");
+    }
+    
+    // ✅ Save updated period options
+    function savePeriodOptions() {
+      const newPeriodOptions = document.getElementById("adminPeriod").value.split("\n").filter(Boolean);
+      localStorage.setItem("periodOptions", newPeriodOptions.join("\n"));
+      loadDropdownOptions();
+      alert("Period options saved!");
+    }
+    
+    // ✅ Load dropdown options from localStorage (retain existing options)
+    function loadDropdownOptions() {
+      const deptOptions = (localStorage.getItem("deptOptions") || "Dept 1\nDept 2\nDept 3").split("\n").filter(Boolean);
+      populateDropdown("dept", deptOptions);
+      populateDropdown("selectDept", deptOptions);
+    
+      const periodOptions = (localStorage.getItem("periodOptions") || "Jan 1\nJan 2\nFeb 1\nFeb 2").split("\n").filter(Boolean);
+      populateDropdown("period", periodOptions);
+    
+      const stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || {};
+      document.getElementById("dept").addEventListener("change", () => {
+        populateDropdown("stall", stallOptions[document.getElementById("dept").value] || []);
+      });
+    }
+    
+    // ✅ Populate dropdowns with existing options
+    function populateDropdown(id, options) {
+      const select = document.getElementById(id);
+      select.innerHTML = <option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>;
+      options.forEach(option => {
+        select.innerHTML += <option value="${option}">${option}</option>;
+      });
+    }
+
+    window.showAdminSection = showAdminSection;
+    window.saveDeptOptions = saveDeptOptions;
+    window.savePeriodOptions = savePeriodOptions;
+    window.generateStalls = generateStalls;
   });
-
-  function loadDropdownOptions() {
-    const dept = document.getElementById("dept");
-    const stall = document.getElementById("stall");
-    const period = document.getElementById("period");
-
-    // Generate Period Options (could be fetched dynamically)
-    const periods = [
-      "Jan 1", "Jan 2", "Feb 1", "Feb 2",
-      "Mar 1", "Mar 2", "Apr 1", "Apr 2",
-      "May 1", "May 2", "Jun 1", "Jun 2", "Jul 1", "Jul 2", "Aug 1", "Aug 2", "Sep 1", "Sep 2", "Oct 1", "Oct 2", "Nov 1", "Nov 2", "Dec 1", "Dec 2"
-    ];
-    periods.forEach(periodText => {
-      const option = document.createElement("option");
-      option.value = periodText;
-      option.textContent = periodText;
-      period.appendChild(option);
-    });
-
-    // Event Listener for Department Change
-    dept.addEventListener("change", () => {
-      updateStalls(dept.value);
-    });
-  }
-
-  function updateStalls(department) {
-    const stall = document.getElementById("stall");
-    stall.innerHTML = "<option value=''>Select Stall</option>"; // Clear previous options
-
-    let stalls = [];
-    if (department === "TPY Lor 8 Table Cleaning") {
-      stalls = Array.from({ length: 80 }, (_, index) => `#01-${index + 1}`);
-    } else if (department === "TPY Lor 8 Dishwashing") {
-      stalls = Array.from({ length: 80 }, (_, index) => `#02-${index + 1}`);
-    } else if (department === "TPY Lor 8 Utensils Rental") {
-      stalls = Array.from({ length: 80 }, (_, index) => `#03-${index + 1}`);
-    } else if (department === "TPY Lor 4 Table Cleaning") {
-      stalls = Array.from({ length: 28 }, (_, index) => `#04-${index + 1}`);
-    }
-
-    stalls.forEach(stallText => {
-      const option = document.createElement("option");
-      option.value = stallText;
-      option.textContent = stallText;
-      stall.appendChild(option);
-    });
-  }
-
-  // Admin Section Logic (optional)
-  function showAdminSection() {
-    document.getElementById("adminSection").style.display = "block";
-  }
-
-  function saveDeptOptions() {
-    const deptOptions = document.getElementById("adminDept").value.split("\n");
-    const deptSelect = document.getElementById("dept");
-    deptSelect.innerHTML = "<option value=''>Select Department</option>";
-
-    deptOptions.forEach(option => {
-      if (option.trim()) {
-        const opt = document.createElement("option");
-        opt.value = option.trim();
-        opt.textContent = option.trim();
-        deptSelect.appendChild(opt);
-      }
-    });
-  }
-
-  function saveStallOptions() {
-    const dept = document.getElementById("selectDept").value;
-    const stallOptions = document.getElementById("adminStall").value.split("\n");
-    const stallSelect = document.getElementById("stall");
-    stallSelect.innerHTML = "<option value=''>Select Stall</option>";
-
-    stallOptions.forEach(option => {
-      if (option.trim()) {
-        const opt = document.createElement("option");
-        opt.value = option.trim();
-        opt.textContent = option.trim();
-        stallSelect.appendChild(opt);
-      }
-    });
-  }
-
-  function savePeriodOptions() {
-    const periodOptions = document.getElementById("adminPeriod").value.split("\n");
-    const periodSelect = document.getElementById("period");
-    periodSelect.innerHTML = "<option value=''>Select Period</option>";
-
-    periodOptions.forEach(option => {
-      if (option.trim()) {
-        const opt = document.createElement("option");
-        opt.value = option.trim();
-        opt.textContent = option.trim();
-        periodSelect.appendChild(opt);
-      }
-    });
-  }
-
-  function generateStalls() {
-    const levelPrefix = document.getElementById("levelPrefix").value;
-    const startRange = parseInt(document.getElementById("startRange").value);
-    const endRange = parseInt(document.getElementById("endRange").value);
-    const stalls = [];
-
-    for (let i = startRange; i <= endRange; i++) {
-      stalls.push(`${levelPrefix}${i}`);
-    }
-
-    document.getElementById("adminStall").value = stalls.join("\n");
-  }
 </script>
 
 </body>
