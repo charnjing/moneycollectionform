@@ -233,10 +233,10 @@
 
     // ✅ Load dropdown options from localStorage
     function loadDropdownOptions() {
-      const deptOptions = (localStorage.getItem("deptOptions") || "TPY Lor 8 Table Cleaning\nTPY Lor 8 Dishwashing\nTPY Lor 8 Utensils Rental\nTPY Lor 4 Table Cleaning").split("\n");
+      const deptOptions = (localStorage.getItem("deptOptions") || "Dept 1\nDept 2\nDept 3").split("\n");
       populateDropdown("dept", deptOptions);
       populateDropdown("selectDept", deptOptions);
-      populateDropdown("period", ["Jan 1", "Jan 2", "Feb 1", "Feb 2", "Mar 1", "Mar 2", "Apr 1", "Apr 2", "May 1", "May 2", "Jun 1", "Jun 2", "Jul 1", "Jul 2", "Aug 1", "Aug 2", "Sep 1", "Sep 2", "Oct 1", "Oct 2", "Nov 1", "Nov 2", "Dec 1", "Dec 2"]);
+      populateDropdown("period", ["Jan 1", "Jan 2", "Feb 1", "Feb 2", "Mar 1", "Mar 2"]);
 
       const stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || {};
       document.getElementById("dept").addEventListener("change", () => {
@@ -303,11 +303,11 @@
     
     // ✅ Load dropdown options from localStorage (retain existing options)
     function loadDropdownOptions() {
-      const deptOptions = (localStorage.getItem("deptOptions") || "TPY Lor 8 Table Cleaning\nTPY Lor 8 Dishwashing\nTPY Lor 8 Utensils Rental\nTPY Lor 4 Table Cleaning").split("\n").filter(Boolean);
+      const deptOptions = (localStorage.getItem("deptOptions") || "Dept 1\nDept 2\nDept 3").split("\n").filter(Boolean);
       populateDropdown("dept", deptOptions);
       populateDropdown("selectDept", deptOptions);
     
-      const periodOptions = (localStorage.getItem("periodOptions") || "Jan 1\nJan 2\nFeb 1\nFeb 2\nMar 1\nMar 2\nApr 1\nApr 2\nMay 1\nMay 2\nJun 1\nJun 2\nJul 1\nJul 2\nAug 1\nAug 2\nSep 1\nSep 2\nOct 1\nOct 2\nNov 1\nNov 2\nDec 1\nDec 2").split("\n").filter(Boolean);
+      const periodOptions = (localStorage.getItem("periodOptions") || "Jan 1\nJan 2\nFeb 1\nFeb 2").split("\n").filter(Boolean);
       populateDropdown("period", periodOptions);
     
       const stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || {};
