@@ -8,163 +8,179 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
-            background-color: #f9f9f9;
-            color: #333;
         }
-        form {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            max-width: 500px;
-            margin: 0 auto;
-        }
-        h2 {
-            font-size: 24px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        label {
-            font-weight: bold;
-            margin-bottom: 5px;
-            display: block;
-        }
-        select, input[type="number"], button {
+        input, select, button {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            padding: 10px;
+            margin: 5px 0;
             box-sizing: border-box;
-            font-size: 16px;
-        }
-        select:focus, input:focus {
-            outline: none;
-            border-color: #4CAF50;
         }
         button {
             background-color: #4CAF50;
             color: white;
-            cursor: pointer;
             border: none;
-            transition: background 0.3s ease;
+            cursor: pointer;
         }
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-        button:hover:enabled {
+        button:hover {
             background-color: #45a049;
         }
-        .success-message {
-            background-color: #d4edda;
-            color: #155724;
+        .history-section {
+            margin-top: 20px;
+            border-top: 2px solid #ccc;
+            padding-top: 10px;
+        }
+        .submission-item {
             padding: 10px;
-            margin-top: 10px;
-            border: 1px solid #c3e6cb;
-            border-radius: 4px;
-            display: none;
-            text-align: center;
+            border: 1px solid #ccc;
+            margin-bottom: 5px;
+            background-color: #f9f9f9;
+        }
+        .edit-btn, .delete-btn {
+            margin-right: 5px;
+            padding: 5px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .delete-btn {
+            background-color: #f44336;
         }
     </style>
 </head>
 <body>
 
 <h2>Money Collection Form</h2>
-<form id="moneyCollectionForm">
-    <label for="dept">Department:</label>
-    <select id="dept" required>
-        <option value="" disabled selected>Select Department</option>
+
+<form id="collectionForm">
+    <!-- Department -->
+    <label for="dept">Dept:</label>
+    <select id="dept" required onchange="updateStalls()">
         <option value="TPY Lor 8 Table Cleaning">TPY Lor 8 Table Cleaning</option>
         <option value="TPY Lor 8 Dishwashing">TPY Lor 8 Dishwashing</option>
         <option value="TPY Lor 8 Utensils Rental">TPY Lor 8 Utensils Rental</option>
         <option value="TPY Lor 4 Table Cleaning">TPY Lor 4 Table Cleaning</option>
     </select>
 
-    <label for="stallNumber">Stall Number:</label>
-    <select id="stallNumber" required>
-        <option value="" disabled selected>Select Stall Number</option>
+    <!-- Stall Number -->
+    <label for="stall">Stall Number:</label>
+    <select id="stall" required>
+        <!-- Populated by JS -->
     </select>
 
-    <label for="payment">Payment:</label>
+    <!-- Payment -->
+    <label>Payment:</label>
     <select id="payment" required>
         <option value="Cash">Cash</option>
         <option value="Cashless">Cashless</option>
     </select>
 
+    <!-- Amount -->
     <label for="amount">Amount:</label>
-    <input type="number" id="amount" placeholder="Enter amount" step="0.01" required>
+    <input type="number" id="amount" step="0.01" required>
 
+    <!-- Period -->
     <label for="period">Period:</label>
     <select id="period" required>
-        <option value="" disabled selected>Select Period</option>
-        <option value="Jan 1">Jan 1</option>
-        <option value="Jan 2">Jan 2</option>
-        <option value="Feb 1">Feb 1</option>
-        <option value="Feb 2">Feb 2</option>
-        <option value="Mar 1">Mar 1</option>
-        <option value="Mar 2">Mar 2</option>
-        <option value="Apr 1">Apr 1</option>
-        <option value="Apr 2">Apr 2</option>
-        <option value="May 1">May 1</option>
-        <option value="May 2">May 2</option>
-        <option value="Jun 1">Jun 1</option>
-        <option value="Jun 2">Jun 2</option>
-        <option value="Jul 1">Jul 1</option>
-        <option value="Jul 2">Jul 2</option>
-        <option value="Aug 1">Aug 1</option>
-        <option value="Aug 2">Aug 2</option>
-        <option value="Sep 1">Sep 1</option>
-        <option value="Sep 2">Sep 2</option>
-        <option value="Oct 1">Oct 1</option>
-        <option value="Oct 2">Oct 2</option>
-        <option value="Nov 1">Nov 1</option>
-        <option value="Nov 2">Nov 2</option>
-        <option value="Dec 1">Dec 1</option>
-        <option value="Dec 2">Dec 2</option>
+        <script>
+            // Populate period dropdown
+            const periods = [
+                'Jan 1', 'Jan 2', 'Feb 1', 'Feb 2', 'Mar 1', 'Mar 2', 'Apr 1', 'Apr 2',
+                'May 1', 'May 2', 'Jun 1', 'Jun 2', 'Jul 1', 'Jul 2', 'Aug 1', 'Aug 2',
+                'Sep 1', 'Sep 2', 'Oct 1', 'Oct 2', 'Nov 1', 'Nov 2', 'Dec 1', 'Dec 2'
+            ];
+            periods.forEach(period => {
+                document.write(`<option value="${period}">${period}</option>`);
+            });
+        </script>
     </select>
 
-    <button type="submit">Submit</button>
-    <div class="success-message" id="successMessage">Submission Sent!</div>
+    <!-- Hidden Fields -->
+    <input type="hidden" id="dateTime">
+
+    <!-- Submit Button -->
+    <button type="submit" id="submitBtn">Submit</button>
 </form>
 
+<!-- Submission History Section -->
+<div class="history-section">
+    <h3>Submission History</h3>
+    <div id="submissionHistory"></div>
+</div>
+
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const deptSelect = document.getElementById('dept');
-        const stallSelect = document.getElementById('stallNumber');
+    let editingIndex = -1; // Track which submission is being edited
 
-        const stallOptions = {
-            "TPY Lor 8 Table Cleaning": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, '0')}`),
-            "TPY Lor 8 Dishwashing": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, '0')}`),
-            "TPY Lor 8 Utensils Rental": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, '0')}`),
-            "TPY Lor 4 Table Cleaning": Array.from({ length: 28 }, (_, i) => `#01-${String(i + 33).padStart(2, '0')}`)
-        };
+    // Stall options by department
+    const stallOptions = {
+        'TPY Lor 8 Table Cleaning': Array.from({ length: 80 }, (_, i) => `#01-${(i + 1).toString().padStart(2, '0')}`),
+        'TPY Lor 8 Dishwashing': Array.from({ length: 80 }, (_, i) => `#01-${(i + 1).toString().padStart(2, '0')}`),
+        'TPY Lor 8 Utensils Rental': Array.from({ length: 80 }, (_, i) => `#01-${(i + 1).toString().padStart(2, '0')}`),
+        'TPY Lor 4 Table Cleaning': Array.from({ length: 28 }, (_, i) => `#01-${(33 + i).toString().padStart(2, '0')}`)
+    };
 
-        function loadStalls() {
-            const selectedDept = deptSelect.value;
-            stallSelect.innerHTML = '<option value="" disabled selected>Select Stall Number</option>';
-            if (stallOptions[selectedDept]) {
-                stallOptions[selectedDept].forEach(stall => {
-                    const option = document.createElement('option');
-                    option.value = stall;
-                    option.textContent = stall;
-                    stallSelect.appendChild(option);
-                });
-            }
-        }
+    function updateStalls() {
+        const dept = document.getElementById('dept').value;
+        const stallSelect = document.getElementById('stall');
+        stallSelect.innerHTML = stallOptions[dept].map(stall => `<option value="${stall}">${stall}</option>`).join('');
+    }
 
-        deptSelect.addEventListener('change', loadStalls);
-
-        document.getElementById('moneyCollectionForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            document.getElementById('successMessage').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('successMessage').style.display = 'none';
-                e.target.reset();
-                stallSelect.innerHTML = '<option value="" disabled selected>Select Stall Number</option>';
-            }, 2000);
+    function loadHistory() {
+        const history = JSON.parse(localStorage.getItem('submissions') || '[]');
+        const container = document.getElementById('submissionHistory');
+        container.innerHTML = '';
+        history.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'submission-item';
+            div.innerHTML = `
+                <div>${item.dateTime} | ${item.dept} | ${item.stall} | ${item.payment} | ${item.amount} | ${item.period}</div>
+                <button class="edit-btn" onclick="editSubmission(${index})">Edit</button>
+                <button class="delete-btn" onclick="deleteSubmission(${index})">Delete</button>
+            `;
+            container.appendChild(div);
         });
+    }
+
+    function editSubmission(index) {
+        const history = JSON.parse(localStorage.getItem('submissions'));
+        const item = history[index];
+        editingIndex = index;
+        document.getElementById('dept').value = item.dept;
+        updateStalls();
+        document.getElementById('stall').value = item.stall;
+        document.getElementById('payment').value = item.payment;
+        document.getElementById('amount').value = item.amount;
+        document.getElementById('period').value = item.period;
+    }
+
+    function deleteSubmission(index) {
+        let history = JSON.parse(localStorage.getItem('submissions'));
+        history.splice(index, 1);
+        localStorage.setItem('submissions', JSON.stringify(history));
+        loadHistory();
+    }
+
+    document.getElementById('collectionForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const submission = {
+            dateTime: new Date().toLocaleString(),
+            dept: document.getElementById('dept').value,
+            stall: document.getElementById('stall').value,
+            payment: document.getElementById('payment').value,
+            amount: document.getElementById('amount').value,
+            period: document.getElementById('period').value
+        };
+        let history = JSON.parse(localStorage.getItem('submissions') || '[]');
+        if (editingIndex > -1) history[editingIndex] = submission;
+        else history.push(submission);
+        localStorage.setItem('submissions', JSON.stringify(history));
+        editingIndex = -1;
+        loadHistory();
+        e.target.reset();
     });
+
+    updateStalls();
+    loadHistory();
 </script>
 
 </body>
