@@ -259,13 +259,27 @@
          select.innerHTML += `<option value="${option}">${option}</option>`;
        });
      }
- 
-     // ✅ Generate stalls
+
+    
      function generateStalls() {
        const dept = document.getElementById("selectDept").value;
        const level = document.getElementById("levelPrefix").value;
        const start = parseInt(document.getElementById("startRange").value);
        const end = parseInt(document.getElementById("endRange").value);
+     
+       if (dept && level && !isNaN(start) && !isNaN(end)) {
+         const stalls = Array.from({ length: end - start + 1 }, (_, i) =>
+           `${level}${String(start + i).padStart(2, "0")}`
+         );
+         
+         stallOptions[dept] = stalls; // ✅ Update global object
+         localStorage.setItem("stallOptions", JSON.stringify(stallOptions));
+         loadDropdownOptions(); // ✅ Reload dropdowns
+         alert("Stalls updated!");
+       }
+     }
+
+
  
        if (dept && level && !isNaN(start) && !isNaN(end)) {
          const stalls = Array.from({ length: end - start + 1 }, (_, i) => `${level}${String(start + i).padStart(2, "0")}`);
@@ -319,12 +333,13 @@
        const periodOptions = (localStorage.getItem("periodOptions") || "Jan 1\nJan 2\nFeb 1\nFeb 2\nMar 1\nMar 2\nApr 1\nApr 2\nMay 1\nMay 2\nJun 1\nJun 2\nJul 1\nJul 2\nAug 1\nAug 2\nSep 1\nSep 2\nOct 1\nOct 2\nNov 1\nNov 2\nDec 1\nDec 2").split("\n").filter(Boolean);
        populateDropdown("period", periodOptions);
       
-       const stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || {
+       let stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || {
          "TPY Lor 8 Table Cleaning": generateStallNumbers(1, 80),
          "TPY Lor 8 Dishwashing": generateStallNumbers(1, 80),
          "TPY Lor 8 Utensils Rental": generateStallNumbers(1, 80),
          "TPY Lor 4 Table Cleaning": generateStallNumbers(33, 60)
        };
+
        
        document.getElementById("dept").addEventListener("change", () => {
          populateDropdown("stall", stallOptions[document.getElementById("dept").value] || []);
