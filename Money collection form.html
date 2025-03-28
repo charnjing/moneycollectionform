@@ -222,14 +222,16 @@
                     body: JSON.stringify(data),
                     headers: { "Content-Type": "application/json" },
                 })
-                    .then(response => response.json())
-                    .then(result => {
-                        showAlert("Submission sent!", "success");
-                        syncOfflineSubmissions();
-                    })
-                    .catch(error => {
-                        showAlert("Error submitting form: " + error.message, "error");
-                    });
+                .then(response => response.json())
+                .then(result => {
+                    console.log(result); // Log the result to see if it was successful
+                    showAlert("Submission sent!", "success");
+                    syncOfflineSubmissions();
+                })
+                .catch(error => {
+                    console.error('Error:', error); // Log any error that occurs
+                    showAlert("Error submitting form: " + error.message, "error");
+                });
             }
 
             function syncOfflineSubmissions() {
