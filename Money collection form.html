@@ -4,168 +4,159 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Money Collection Form</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f9f9f9;
-            color: #333;
-        }
-        form {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            max-width: 500px;
-            margin: 0 auto;
-        }
-        h2 {
-            font-size: 24px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        label {
-            font-weight: bold;
-            margin-bottom: 5px;
-            display: block;
-        }
-        select, input[type="number"], button {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        select:focus, input:focus {
-            outline: none;
-            border-color: #4CAF50;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            cursor: pointer;
-            border: none;
-            transition: background 0.3s ease;
-        }
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-        button:hover:enabled {
-            background-color: #45a049;
-        }
-        .success-message {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 10px;
-            margin-top: 10px;
-            border: 1px solid #c3e6cb;
-            border-radius: 4px;
-            display: none;
-            text-align: center;
-        }
-    </style>
-</head>
-<body>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const deptSelect = document.getElementById("dept");
+            const stallSelect = document.getElementById("stall");
 
-<h2>Money Collection Form</h2>
-<form id="moneyCollectionForm">
-    <label for="dept">Department:</label>
-    <select id="dept" required>
-        <option value="" disabled selected>Select Department</option>
-        <option value="TPY Lor 8 Table Cleaning">TPY Lor 8 Table Cleaning</option>
-        <option value="TPY Lor 8 Dishwashing">TPY Lor 8 Dishwashing</option>
-        <option value="TPY Lor 8 Utensils Rental">TPY Lor 8 Utensils Rental</option>
-        <option value="TPY Lor 4 Table Cleaning">TPY Lor 4 Table Cleaning</option>
-    </select>
+            // Default stall options
+            const defaultStalls = {
+                "TPY Lor 8 Table Cleaning": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, '0')}`),
+                "TPY Lor 8 Dishwashing": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, '0')}`),
+                "TPY Lor 8 Utensils Rental": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, '0')}`),
+                "TPY Lor 4 Table Cleaning": Array.from({ length: 28 }, (_, i) => `#01-${String(i + 33).padStart(2, '0')}`)
+            };
 
-    <label for="stallNumber">Stall Number:</label>
-    <select id="stallNumber" required>
-        <option value="" disabled selected>Select Stall Number</option>
-    </select>
-
-    <label for="payment">Payment:</label>
-    <select id="payment" required>
-        <option value="Cash">Cash</option>
-        <option value="Cashless">Cashless</option>
-    </select>
-
-    <label for="amount">Amount:</label>
-    <input type="number" id="amount" placeholder="Enter amount" step="0.01" required>
-
-    <label for="period">Period:</label>
-    <select id="period" required>
-        <option value="" disabled selected>Select Period</option>
-        <option value="Jan 1">Jan 1</option>
-        <option value="Jan 2">Jan 2</option>
-        <option value="Feb 1">Feb 1</option>
-        <option value="Feb 2">Feb 2</option>
-        <option value="Mar 1">Mar 1</option>
-        <option value="Mar 2">Mar 2</option>
-        <option value="Apr 1">Apr 1</option>
-        <option value="Apr 2">Apr 2</option>
-        <option value="May 1">May 1</option>
-        <option value="May 2">May 2</option>
-        <option value="Jun 1">Jun 1</option>
-        <option value="Jun 2">Jun 2</option>
-        <option value="Jul 1">Jul 1</option>
-        <option value="Jul 2">Jul 2</option>
-        <option value="Aug 1">Aug 1</option>
-        <option value="Aug 2">Aug 2</option>
-        <option value="Sep 1">Sep 1</option>
-        <option value="Sep 2">Sep 2</option>
-        <option value="Oct 1">Oct 1</option>
-        <option value="Oct 2">Oct 2</option>
-        <option value="Nov 1">Nov 1</option>
-        <option value="Nov 2">Nov 2</option>
-        <option value="Dec 1">Dec 1</option>
-        <option value="Dec 2">Dec 2</option>
-    </select>
-
-    <button type="submit">Submit</button>
-    <div class="success-message" id="successMessage">Submission Sent!</div>
-</form>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const deptSelect = document.getElementById('dept');
-        const stallSelect = document.getElementById('stallNumber');
-
-        const stallOptions = {
-            "TPY Lor 8 Table Cleaning": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, '0')}`),
-            "TPY Lor 8 Dishwashing": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, '0')}`),
-            "TPY Lor 8 Utensils Rental": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, '0')}`),
-            "TPY Lor 4 Table Cleaning": Array.from({ length: 28 }, (_, i) => `#01-${String(i + 33).padStart(2, '0')}`)
-        };
-
-        function loadStalls() {
-            const selectedDept = deptSelect.value;
-            stallSelect.innerHTML = '<option value="" disabled selected>Select Stall Number</option>';
-            if (stallOptions[selectedDept]) {
-                stallOptions[selectedDept].forEach(stall => {
-                    const option = document.createElement('option');
-                    option.value = stall;
-                    option.textContent = stall;
-                    stallSelect.appendChild(option);
+            // Load department options
+            function loadDeptOptions() {
+                deptSelect.innerHTML = ""; // Clear existing options
+                Object.keys(defaultStalls).forEach(dept => {
+                    const option = document.createElement("option");
+                    option.value = dept;
+                    option.textContent = dept;
+                    deptSelect.appendChild(option);
                 });
             }
-        }
 
-        deptSelect.addEventListener('change', loadStalls);
+            // Load stall options based on selected department
+            function loadStallOptions(dept) {
+                stallSelect.innerHTML = ""; // Clear existing options
+                if (defaultStalls[dept]) {
+                    defaultStalls[dept].forEach(stall => {
+                        const option = document.createElement("option");
+                        option.value = stall;
+                        option.textContent = stall;
+                        stallSelect.appendChild(option);
+                    });
+                } else {
+                    console.warn(`No stall options found for dept: ${dept}`);
+                }
+            }
 
-        document.getElementById('moneyCollectionForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            document.getElementById('successMessage').style.display = 'block';
-            setTimeout(() => {
-                document.getElementById('successMessage').style.display = 'none';
-                e.target.reset();
-                stallSelect.innerHTML = '<option value="" disabled selected>Select Stall Number</option>';
-            }, 2000);
+            // Event listener for department change
+            deptSelect.addEventListener("change", (e) => {
+                loadStallOptions(e.target.value);
+            });
+
+            // Initialize department and stall options on page load
+            loadDeptOptions();
+
+            // 🚨 Fix: Force stall loading on initial load
+            const initialDept = deptSelect.value || "TPY Lor 8 Table Cleaning"; // Default to first option if missing
+            loadStallOptions(initialDept);
+
+            function submitForm(event) {
+                event.preventDefault();
+
+                const formData = {
+                    datetime: new Date().toISOString(),
+                    dept: deptSelect.value,
+                    stall: stallSelect.value,
+                    payment: document.querySelector('input[name="payment"]:checked')?.value || "",
+                    amount: document.getElementById("amount").value,
+                    period: document.getElementById("period").value
+                };
+
+                // Store data offline if offline
+                if (!navigator.onLine) {
+                    const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
+                    submissions.push(formData);
+                    localStorage.setItem("submissions", JSON.stringify(submissions));
+                    alert("Form submitted offline. It will sync when online.");
+                } else {
+                    sendToGoogleSheet(formData);
+                }
+            }
+
+            function sendToGoogleSheet(data) {
+                fetch("https://script.google.com/macros/s/AKfycbyw9Pn6FkYlPo875JmJt3_M2a1-SO31JxGnCe-vW-UgzUoK6zjwDREjINrm06_OhzRD/exec", {
+                    method: "POST",
+                    body: JSON.stringify(data),
+                    headers: { "Content-Type": "application/json" },
+                })
+                    .then(response => response.json())
+                    .then(result => {
+                        alert("Submission sent!");
+                        syncOfflineSubmissions();
+                    })
+                    .catch(error => {
+                        alert("Error submitting form: " + error.message);
+                    });
+            }
+
+            function syncOfflineSubmissions() {
+                if (navigator.onLine) {
+                    const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
+                    if (submissions.length > 0) {
+                        submissions.forEach(submission => {
+                            sendToGoogleSheet(submission);
+                        });
+                        localStorage.removeItem("submissions");
+                        alert("Offline submissions synced!");
+                    }
+                }
+            }
+
+            // Sync when back online
+            window.addEventListener("online", syncOfflineSubmissions);
         });
-    });
-</script>
+    </script>
+</head>
+<body>
+    <h2>Money Collection Form</h2>
+    <form onsubmit="submitForm(event)">
+        <label for="dept">Dept:</label>
+        <select id="dept" required></select>
 
+        <label for="stall">Stall Number:</label>
+        <select id="stall" required></select>
+
+        <label>Payment:</label>
+        <input type="radio" name="payment" value="Cash" required> Cash
+        <input type="radio" name="payment" value="Cashless" required> Cashless
+
+        <label for="amount">Amount:</label>
+        <input type="number" id="amount" step="0.01" required>
+
+        <label for="period">Period:</label>
+        <select id="period" required>
+            <option value="Jan 1">Jan 1</option>
+            <option value="Jan 2">Jan 2</option>
+            <option value="Feb 1">Feb 1</option>
+            <option value="Feb 2">Feb 2</option>
+            <option value="Mar 1">Mar 1</option>
+            <option value="Mar 2">Mar 2</option>
+            <option value="Apr 1">Apr 1</option>
+            <option value="Apr 2">Apr 2</option>
+            <option value="May 1">May 1</option>
+            <option value="May 2">May 2</option>
+            <option value="Jun 1">Jun 1</option>
+            <option value="Jun 2">Jun 2</option>
+            <option value="Jul 1">Jul 1</option>
+            <option value="Jul 2">Jul 2</option>
+            <option value="Aug 1">Aug 1</option>
+            <option value="Aug 2">Aug 2</option>
+            <option value="Sep 1">Sep 1</option>
+            <option value="Sep 2">Sep 2</option>
+            <option value="Oct 1">Oct 1</option>
+            <option value="Oct 2">Oct 2</option>
+            <option value="Nov 1">Nov 1</option>
+            <option value="Nov 2">Nov 2</option>
+            <option value="Dec 1">Dec 1</option>
+            <option value="Dec 2">Dec 2</option>
+        </select>
+
+        <button type="submit">Submit</button>
+    </form>
 </body>
 </html>
