@@ -15,15 +15,16 @@
             background-color: #f9f9f9;
             margin: 0;
             padding: 20px;
+            box-sizing: border-box;
         }
-
+    
         h2 {
             font-size: 24px;
             margin-bottom: 20px;
             text-align: center;
             color: #333;
         }
-
+    
         form {
             background-color: white;
             padding: 20px;
@@ -33,7 +34,7 @@
             max-width: 600px;
             margin: 0 auto;
         }
-
+    
         label {
             font-size: 14px;
             font-weight: 500;
@@ -41,7 +42,7 @@
             margin-bottom: 8px;
             display: block;
         }
-
+    
         select, input[type="number"], input[type="radio"] {
             width: 100%;
             padding: 10px;
@@ -51,18 +52,18 @@
             font-size: 14px;
             background-color: #fff;
         }
-
+    
         input[type="radio"] {
             width: auto;
             margin-right: 5px;
         }
-
+    
         select:focus, input[type="number"]:focus {
             border-color: #4285F4;
             outline: none;
             box-shadow: 0 0 5px rgba(66, 133, 244, 0.4);
         }
-
+    
         button[type="submit"] {
             background-color: #4285F4;
             color: white;
@@ -74,29 +75,29 @@
             width: 100%;
             margin-top: 20px;
         }
-
+    
         button[type="submit"]:hover {
             background-color: #357ae8;
         }
-
+    
         .form-group {
             margin-bottom: 20px;
         }
-
+    
         .form-group:last-child {
             margin-bottom: 0;
         }
-
+    
         .radio-group {
             display: flex;
             gap: 15px;
             margin-top: 8px;
         }
-
+    
         .radio-group label {
             font-weight: normal;
         }
-
+    
         /* Alert Message */
         .alert {
             background-color: #4CAF50;
@@ -107,9 +108,41 @@
             border-radius: 4px;
             display: none;
         }
-
+    
         .alert.error {
             background-color: #f44336;
+        }
+    
+        /* Responsive Styles */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+    
+            h2 {
+                font-size: 20px;
+            }
+    
+            form {
+                padding: 15px;
+            }
+    
+            label {
+                font-size: 12px;
+            }
+    
+            select, input[type="number"], button[type="submit"] {
+                padding: 12px;
+            }
+    
+            .radio-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+    
+            button[type="submit"] {
+                padding: 12px 20px;
+            }
         }
     </style>
     
