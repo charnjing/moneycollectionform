@@ -258,12 +258,15 @@
                 document.body.appendChild(alertBox);
                 setTimeout(() => alertBox.remove(), 3000);
             }
+
+            // Attach submitForm to form
+            document.querySelector("form").addEventListener("submit", submitForm);
         });
     </script>
 </head>
 <body>
     <h2>Money Collection Form</h2>
-    <form onsubmit="submitForm(event)">
+    <form>
         <div class="form-group">
             <label for="dept">Dept:</label>
             <select id="dept" required></select>
