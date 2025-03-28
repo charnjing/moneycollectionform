@@ -1,204 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Money Collection Form</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-    }
-    form, .admin-section {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-width: 400px;
-      margin-bottom: 20px;
-    }
-    label {
-      font-weight: bold;
-    }
-    input, select, button, textarea {
-      padding: 8px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    button {
-      background-color: #4CAF50;
-      color: white;
-      cursor: pointer;
-    }
-    button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-    .message {
-      margin-top: 10px;
-      font-size: 14px;
-    }
-    .admin-section {
-      background-color: #f9f9f9;
-      padding: 15px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      display: none;
-    }
-    .admin-section h3 {
-      margin-top: 0;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Money Collection Form</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const deptSelect = document.getElementById("dept");
+            const stallSelect = document.getElementById("stall");
+
+            // Default stall options
+            const defaultStalls = {
+                "TPY Lor 8 Table Cleaning": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, '0')}`),
+                "TPY Lor 8 Dishwashing": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, '0')}`),
+                "TPY Lor 8 Utensils Rental": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, '0')}`),
+                "TPY Lor 4 Table Cleaning": Array.from({ length: 28 }, (_, i) => `#01-${String(i + 33).padStart(2, '0')}`)
+            };
+
+            // Load department options
+            function loadDeptOptions() {
+                const depts = Object.keys(defaultStalls);
+                depts.forEach(dept => {
+                    const option = document.createElement("option");
+                    option.value = dept;
+                    option.textContent = dept;
+                    deptSelect.appendChild(option);
+                });
+            }
+
+            // Load stall options based on selected department
+            function loadStallOptions(dept) {
+                stallSelect.innerHTML = ""; // Clear existing options
+                if (defaultStalls[dept]) {
+                    defaultStalls[dept].forEach(stall => {
+                        const option = document.createElement("option");
+                        option.value = stall;
+                        option.textContent = stall;
+                        stallSelect.appendChild(option);
+                    });
+                }
+            }
+
+            // Event listener for department change
+            deptSelect.addEventListener("change", (e) => {
+                loadStallOptions(e.target.value);
+            });
+
+            // Initialize options on page load
+            loadDeptOptions();
+            loadStallOptions(deptSelect.value);
+        });
+
+        function submitForm(event) {
+            event.preventDefault();
+
+            const formData = {
+                datetime: new Date().toISOString(),
+                dept: document.getElementById("dept").value,
+                stall: document.getElementById("stall").value,
+                payment: document.querySelector('input[name="payment"]:checked')?.value || "",
+                amount: document.getElementById("amount").value,
+                period: document.getElementById("period").value
+            };
+
+            // Store data offline if offline
+            if (!navigator.onLine) {
+                const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
+                submissions.push(formData);
+                localStorage.setItem("submissions", JSON.stringify(submissions));
+                alert("Form submitted offline. It will sync when online.");
+            } else {
+                sendToGoogleSheet(formData);
+            }
+        }
+
+        function sendToGoogleSheet(data) {
+            fetch("https://script.google.com/macros/s/AKfycbyw9Pn6FkYlPo875JmJt3_M2a1-SO31JxGnCe-vW-UgzUoK6zjwDREjINrm06_OhzRD/exec", {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: { "Content-Type": "application/json" },
+            })
+                .then(response => response.json())
+                .then(result => {
+                    alert("Submission sent!");
+                    syncOfflineSubmissions(); // Try syncing offline submissions after successful submission
+                })
+                .catch(error => {
+                    alert("Error submitting form: " + error.message);
+                });
+        }
+
+        function syncOfflineSubmissions() {
+            if (navigator.onLine) {
+                const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
+                if (submissions.length > 0) {
+                    submissions.forEach(submission => {
+                        sendToGoogleSheet(submission);
+                    });
+                    localStorage.removeItem("submissions");
+                    alert("Offline submissions synced!");
+                }
+            }
+        }
+
+        window.addEventListener("online", syncOfflineSubmissions);
+    </script>
 </head>
 <body>
+    <h2>Money Collection Form</h2>
+    <form onsubmit="submitForm(event)">
+        <label for="dept">Dept:</label>
+        <select id="dept" required></select>
 
-<h2>Money Collection Form</h2>
-<form id="moneyCollectionForm">
-  <label for="dateTime">Date and Time:</label>
-  <input type="text" id="dateTime" name="dateTime" readonly />
+        <label for="stall">Stall Number:</label>
+        <select id="stall" required></select>
 
-  <label for="dept">Department:</label>
-  <select id="dept" name="dept" required>
-    <option value="">Select Department</option>
-  </select>
+        <label>Payment:</label>
+        <input type="radio" name="payment" value="Cash" required> Cash
+        <input type="radio" name="payment" value="Cashless" required> Cashless
 
-  <label for="stall">Stall Number:</label>
-  <select id="stall" name="stall" required>
-    <option value="">Select Stall</option>
-  </select>
+        <label for="amount">Amount:</label>
+        <input type="number" id="amount" step="0.01" required>
 
-  <label for="period">Period:</label>
-  <select id="period" name="period" required>
-    <option value="">Select Period</option>
-  </select>
+        <label for="period">Period:</label>
+        <select id="period" required>
+            <option value="Jan 1">Jan 1</option>
+            <option value="Jan 2">Jan 2</option>
+            <option value="Feb 1">Feb 1</option>
+            <option value="Feb 2">Feb 2</option>
+            <option value="Mar 1">Mar 1</option>
+            <option value="Mar 2">Mar 2</option>
+            <option value="Apr 1">Apr 1</option>
+            <option value="Apr 2">Apr 2</option>
+            <option value="May 1">May 1</option>
+            <option value="May 2">May 2</option>
+            <option value="Jun 1">Jun 1</option>
+            <option value="Jun 2">Jun 2</option>
+            <option value="Jul 1">Jul 1</option>
+            <option value="Jul 2">Jul 2</option>
+            <option value="Aug 1">Aug 1</option>
+            <option value="Aug 2">Aug 2</option>
+            <option value="Sep 1">Sep 1</option>
+            <option value="Sep 2">Sep 2</option>
+            <option value="Oct 1">Oct 1</option>
+            <option value="Oct 2">Oct 2</option>
+            <option value="Nov 1">Nov 1</option>
+            <option value="Nov 2">Nov 2</option>
+            <option value="Dec 1">Dec 1</option>
+            <option value="Dec 2">Dec 2</option>
+        </select>
 
-  <label>Payment Type:</label>
-  <div>
-    <input type="radio" id="cash" name="payment" value="Cash" required />
-    <label for="cash">Cash</label>
-    <input type="radio" id="cashless" name="payment" value="Cashless" required />
-    <label for="cashless">Cashless</label>
-  </div>
-
-  <label for="amount">Amount:</label>
-  <input type="number" id="amount" name="amount" step="0.01" required />
-
-  <button type="submit" id="submitBtn">Submit</button>
-  <div class="message" id="message"></div>
-</form>
-
-<!-- Admin Section -->
-<div class="admin-section" id="adminSection">
-  <h3>Edit Dropdown Options</h3>
-
-  <!-- Edit Department -->
-  <label for="adminDept">Departments (one per line):</label>
-  <textarea id="adminDept" rows="5"></textarea>
-  <button onclick="saveDeptOptions()">Save Department Options</button>
-
-  <!-- Edit Stalls -->
-  <h4>Edit Stalls</h4>
-  <label for="selectDept">Select Department:</label>
-  <select id="selectDept">
-    <option value="">Select Department</option>
-  </select>
-
-  <label for="levelPrefix">Level Prefix:</label>
-  <input type="text" id="levelPrefix" placeholder="#02-" />
-
-  <label for="startRange">Range:</label>
-  <input type="number" id="startRange" placeholder="Start" />
-  <input type="number" id="endRange" placeholder="End" />
-
-  <button onclick="generateStalls()">Generate Stalls</button>
-
-  <label for="adminPeriod">Periods (one per line):</label>
-  <textarea id="adminPeriod" rows="5"></textarea>
-  <button onclick="savePeriodOptions()">Save Period Options</button>
-</div>
-
-<button onclick="showAdminSection()">Admin Edit</button>
-
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("dateTime").value = new Date().toLocaleString();
-    loadDropdownOptions();
-
-    const form = document.getElementById("moneyCollectionForm");
-    const message = document.getElementById("message");
-    const submitBtn = document.getElementById("submitBtn");
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      submitBtn.disabled = true;
-
-      const formData = {
-        dateTime: document.getElementById("dateTime").value,
-        dept: document.getElementById("dept").value,
-        stall: document.getElementById("stall").value,
-        period: document.getElementById("period").value,
-        payment: document.querySelector('input[name="payment"]:checked').value,
-        amount: document.getElementById("amount").value
-      };
-
-      console.log(formData);
-      form.reset();
-      document.getElementById("dateTime").value = new Date().toLocaleString();
-      submitBtn.disabled = false;
-    });
-
-    function loadDropdownOptions() {
-      const deptOptions = (localStorage.getItem("deptOptions") || "TPY Lor 8 Table Cleaning\nTPY Lor 8 Dishwashing\nTPY Lor 8 Utensils Rental\nTPY Lor 4 Table Cleaning").split("\n");
-      populateDropdown("dept", deptOptions);
-      populateDropdown("selectDept", deptOptions);
-
-      const stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || {
-        "TPY Lor 8 Table Cleaning": generateStallNumbers(1, 80),
-        "TPY Lor 8 Dishwashing": generateStallNumbers(1, 80),
-        "TPY Lor 8 Utensils Rental": generateStallNumbers(1, 80),
-        "TPY Lor 4 Table Cleaning": generateStallNumbers(33, 60)
-      };
-
-      document.getElementById("dept").addEventListener("change", () => {
-        const selectedDept = document.getElementById("dept").value;
-        populateDropdown("stall", stallOptions[selectedDept] || []);
-      });
-    }
-
-    function populateDropdown(id, options) {
-      const select = document.getElementById(id);
-      select.innerHTML = `<option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>`;
-      options.forEach(option => {
-        select.innerHTML += `<option value="${option}">${option}</option>`;
-      });
-    }
-
-    function generateStallNumbers(start, end) {
-      return Array.from({ length: end - start + 1 }, (_, i) => `#01-${String(start + i).padStart(2, '0')}`);
-    }
-
-    function generateStalls() {
-      const dept = document.getElementById("selectDept").value;
-      const level = document.getElementById("levelPrefix").value;
-      const start = parseInt(document.getElementById("startRange").value);
-      const end = parseInt(document.getElementById("endRange").value);
-
-      if (dept && level && !isNaN(start) && !isNaN(end)) {
-        const stalls = generateStallNumbers(start, end);
-        const stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || {};
-        stallOptions[dept] = stalls;
-        localStorage.setItem("stallOptions", JSON.stringify(stallOptions));
-        loadDropdownOptions();
-        alert("Stalls updated!");
-      }
-    }
-
-    window.showAdminSection = showAdminSection;
-    window.saveDeptOptions = saveDeptOptions;
-    window.savePeriodOptions = savePeriodOptions;
-    window.generateStalls = generateStalls;
-  });
-</script>
-
+        <button type="submit">Submit</button>
+    </form>
 </body>
 </html>
