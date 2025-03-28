@@ -138,6 +138,18 @@
         amount: document.getElementById("amount").value
       };
 
+      // Prepare data for Google Sheets (Column A-G)
+      const dataToSend = {
+        DateTime: formData.dateTime,
+        Stall: formData.stall,
+        Empty: '',  // Empty column C
+        Payment: formData.payment,
+        Amount: formData.amount,
+        Period: formData.period,
+        Dept: formData.dept
+      };
+
+      
       if (navigator.onLine && (await canReachServer())) {
         await sendData(formData);
       } else {
