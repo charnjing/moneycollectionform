@@ -1,112 +1,174 @@
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("dateTime").value = new Date().toLocaleString();
-
-  loadDropdownOptions();
-
-  const form = document.getElementById("moneyCollectionForm");
-  const message = document.getElementById("message");
-  const submitBtn = document.getElementById("submitBtn");
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    submitBtn.disabled = true;
-
-    const formData = {
-      dateTime: document.getElementById("dateTime").value,
-      dept: document.getElementById("dept").value,
-      stall: document.getElementById("stall").value,
-      period: document.getElementById("period").value,
-      payment: document.querySelector('input[name="payment"]:checked').value,
-      amount: document.getElementById("amount").value
-    };
-
-    if (navigator.onLine && (await canReachServer())) {
-      await sendData(formData);
-    } else {
-      saveOffline(formData);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Money Collection Form</title>
+  <style>
+    #message {
+      font-size: 14px;
+      margin-top: 10px;
     }
+  </style>
+</head>
+<body>
+  <h2>Money Collection Form</h2>
+  <form id="moneyCollectionForm">
+    <label for="dateTime">Date and Time:</label>
+    <input type="text" id="dateTime" name="dateTime" readonly /><br><br>
 
-    form.reset();
-    document.getElementById("dateTime").value = new Date().toLocaleString();
-    submitBtn.disabled = false;
-  });
+    <label for="dept">Department:</label>
+    <select id="dept" name="dept">
+      <option value="">Select Department</option>
+    </select><br><br>
 
-  async function canReachServer() {
-    try {
-      const response = await fetch(
-        "https://script.google.com/macros/s/AKfycbyCJRuW4thDz7H_fUIe3ee0uu7yRFpC81l_g33sYygqDmvGDrMcgm88TZkBu_Kb_N8a/exec?ping=true",
-        { mode: "no-cors" }
-      );
-      return true;
-    } catch {
-      return false;
-    }
-  }
+    <label for="stall">Stall:</label>
+    <select id="stall" name="stall">
+      <option value="">Select Stall</option>
+    </select><br><br>
 
-  function saveOffline(data) {
-    const offlineData = JSON.parse(localStorage.getItem("offlineSubmissions")) || [];
-    offlineData.push(data);
-    localStorage.setItem("offlineSubmissions", JSON.stringify(offlineData));
-    showMessage("Submission saved offline.", "blue");
-  }
+    <label for="period">Period:</label>
+    <select id="period" name="period">
+      <option value="">Select Period</option>
+    </select><br><br>
 
-  async function syncOfflineData() {
-    const offlineData = JSON.parse(localStorage.getItem("offlineSubmissions")) || [];
-    if (offlineData.length === 0) return;
+    <label>Payment Method:</label>
+    <input type="radio" id="cash" name="payment" value="Cash">
+    <label for="cash">Cash</label>
+    <input type="radio" id="card" name="payment" value="Card">
+    <label for="card">Card</label><br><br>
 
-    let syncedCount = 0;
-    for (const data of offlineData) {
-      try {
-        await sendData(data);
-        syncedCount++;
-      } catch (error) {
-        console.error("Failed to sync offline data:", error);
-      }
-    }
+    <label for="amount">Amount:</label>
+    <input type="number" id="amount" name="amount" min="0"><br><br>
 
-    if (syncedCount > 0) {
-      offlineData.splice(0, syncedCount);
-      localStorage.setItem("offlineSubmissions", JSON.stringify(offlineData));
-      showMessage(`${syncedCount} offline submission(s) synced!`, "green");
-    }
-  }
+    <button type="submit" id="submitBtn">Submit</button>
+  </form>
 
-  async function sendData(data) {
-    try {
-      await fetch(
-        "https://script.google.com/macros/s/AKfycbyCJRuW4thDz7H_fUIe3ee0uu7yRFpC81l_g33sYygqDmvGDrMcgm88TZkBu_Kb_N8a/exec",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-          mode: "no-cors"
+  <div id="message"></div>
+
+  <button id="adminBtn">Show Admin Section</button>
+
+  <div id="adminSection" style="display: none;">
+    <h3>Admin Section</h3>
+    <label for="adminDept">Departments (comma separated):</label><br>
+    <textarea id="adminDept" rows="5" cols="30"></textarea><br><br>
+
+    <label for="adminPeriod">Periods (comma separated):</label><br>
+    <textarea id="adminPeriod" rows="5" cols="30"></textarea><br><br>
+
+    <button id="saveAdminBtn">Save</button>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("dateTime").value = new Date().toLocaleString();
+
+      loadDropdownOptions();
+
+      const form = document.getElementById("moneyCollectionForm");
+      const message = document.getElementById("message");
+      const submitBtn = document.getElementById("submitBtn");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        submitBtn.disabled = true;
+
+        const formData = {
+          dateTime: document.getElementById("dateTime").value,
+          dept: document.getElementById("dept").value,
+          stall: document.getElementById("stall").value,
+          period: document.getElementById("period").value,
+          payment: document.querySelector('input[name="payment"]:checked').value,
+          amount: document.getElementById("amount").value
+        };
+
+        if (navigator.onLine && (await canReachServer())) {
+          await sendData(formData);
+        } else {
+          saveOffline(formData);
         }
-      );
-      showMessage("Submission synced successfully!", "green");
-    } catch (error) {
-      console.error("Sync error:", error);
-      showMessage("Failed to sync submission.", "red");
-    }
-  }
 
-  function showMessage(text, color) {
-    message.innerText = text;
-    message.style.color = color;
-  }
+        form.reset();
+        document.getElementById("dateTime").value = new Date().toLocaleString();
+        submitBtn.disabled = false;
+      });
 
-  setInterval(async () => {
-    if (navigator.onLine && (await canReachServer())) {
-      syncOfflineData();
-    }
-  }, 10000);
+      async function canReachServer() {
+        try {
+          const response = await fetch(
+            "https://script.google.com/macros/s/AKfycbyCJRuW4thDz7H_fUIe3ee0uu7yRFpC81l_g33sYygqDmvGDrMcgm88TZkBu_Kb_N8a/exec?ping=true",
+            { mode: "no-cors" }
+          );
+          return true;
+        } catch {
+          return false;
+        }
+      }
 
-  function loadDropdownOptions() {
-    const defaultDept = `TPY Lor 8 Table Cleaning
+      function saveOffline(data) {
+        const offlineData = JSON.parse(localStorage.getItem("offlineSubmissions")) || [];
+        offlineData.push(data);
+        localStorage.setItem("offlineSubmissions", JSON.stringify(offlineData));
+        showMessage("Submission saved offline.", "blue");
+      }
+
+      async function syncOfflineData() {
+        const offlineData = JSON.parse(localStorage.getItem("offlineSubmissions")) || [];
+        if (offlineData.length === 0) return;
+
+        let syncedCount = 0;
+        for (const data of offlineData) {
+          try {
+            await sendData(data);
+            syncedCount++;
+          } catch (error) {
+            console.error("Failed to sync offline data:", error);
+          }
+        }
+
+        if (syncedCount > 0) {
+          offlineData.splice(0, syncedCount);
+          localStorage.setItem("offlineSubmissions", JSON.stringify(offlineData));
+          showMessage(`${syncedCount} offline submission(s) synced!`, "green");
+        }
+      }
+
+      async function sendData(data) {
+        try {
+          await fetch(
+            "https://script.google.com/macros/s/AKfycbyCJRuW4thDz7H_fUIe3ee0uu7yRFpC81l_g33sYygqDmvGDrMcgm88TZkBu_Kb_N8a/exec",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(data),
+              mode: "no-cors"
+            }
+          );
+          showMessage("Submission synced successfully!", "green");
+        } catch (error) {
+          console.error("Sync error:", error);
+          showMessage("Failed to sync submission.", "red");
+        }
+      }
+
+      function showMessage(text, color) {
+        message.innerText = text;
+        message.style.color = color;
+      }
+
+      setInterval(async () => {
+        if (navigator.onLine && (await canReachServer())) {
+          syncOfflineData();
+        }
+      }, 10000);
+
+      function loadDropdownOptions() {
+        const defaultDept = `TPY Lor 8 Table Cleaning
 TPY Lor 8 Dishwashing
 TPY Lor 8 Utensils Rental
 TPY Lor 4 Table Cleaning
 Chinatown`;
-    const defaultPeriod = `Jan 1
+        const defaultPeriod = `Jan 1
 Jan 2
 Feb 1
 Feb 2
@@ -131,67 +193,70 @@ Nov 2
 Dec 1
 Dec 2`;
 
-    const deptOptions = (localStorage.getItem("deptOptions") || defaultDept).split("\n").filter(Boolean);
-    populateDropdown("dept", deptOptions);
-    populateDropdown("selectDept", deptOptions);
+        const deptOptions = (localStorage.getItem("deptOptions") || defaultDept).split("\n").filter(Boolean);
+        populateDropdown("dept", deptOptions);
+        populateDropdown("selectDept", deptOptions);
 
-    const periodOptions = (localStorage.getItem("periodOptions") || defaultPeriod).split("\n").filter(Boolean);
-    populateDropdown("period", periodOptions);
+        const periodOptions = (localStorage.getItem("periodOptions") || defaultPeriod).split("\n").filter(Boolean);
+        populateDropdown("period", periodOptions);
 
-    // Define default stall numbers for each department
-    const stallOptions = {
-      "TPY Lor 8 Table Cleaning": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, "0")}`),
-      "TPY Lor 8 Dishwashing": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, "0")}`),
-      "TPY Lor 8 Utensils Rental": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, "0")}`),
-      "TPY Lor 4 Table Cleaning": Array.from({ length: 28 }, (_, i) => `#01-${String(i + 33).padStart(2, "0")}`),
-      "Chinatown": [
-        "#01-33",
-        "#02-001", "#02-002", "#02-003", "#02-004", "#02-005", "#02-006", "#02-007", "#02-008",
-        "#02-009", "#02-010", "#02-011", "#02-012", "#02-013", "#02-014", "#02-015", "#02-016",
-        "#02-017", "#02-018", "#02-019", "#02-020", "#02-021", "#02-022", "#02-023", "#02-024",
-        "#02-025", "#02-026", "#02-027", "#02-028", "#02-029", "#02-030", "#02-031", "#02-032",
-        "#02-033", "#02-034", "#02-035", "#02-036", "#02-037", "#02-038", "#02-039", "#02-040",
-        "#02-041", "#02-042", "#02-043", "#02-044", "#02-045", "#02-046", "#02-047", "#02-048",
-        "#02-049", "#02-050", "#02-051", "#02-052", "#02-053", "#02-054", "#02-055", "#02-056",
-        "#02-057", "#02-058", "#02-059", "#02-060", "#02-061", "#02-062", "#02-063", "#02-064",
-        "#02-065", "#02-066", "#02-067", "#02-068", "#02-069", "#02-070", "#02-071", "#02-072",
-        "#02-073", "#02-074", "#02-075", "#02-076", "#02-077", "#02-078", "#02-079", "#02-080",
-        "#02-081", "#02-082", "#02-083", "#02-084", "#02-085", "#02-086", "#02-087", "#02-088",
-        "#02-089", "#02-090"
-      ]
-    };
+        // Define default stall numbers for each department
+        const stallOptions = {
+          "TPY Lor 8 Table Cleaning": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, "0")}`),
+          "TPY Lor 8 Dishwashing": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, "0")}`),
+          "TPY Lor 8 Utensils Rental": Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, "0")}`),
+          "TPY Lor 4 Table Cleaning": Array.from({ length: 28 }, (_, i) => `#01-${String(i + 33).padStart(2, "0")}`),
+          "Chinatown": [
+            "#01-33",
+            "#02-001", "#02-002", "#02-003", "#02-004", "#02-005", "#02-006", "#02-007", "#02-008",
+            "#02-009", "#02-010", "#02-011", "#02-012", "#02-013", "#02-014", "#02-015", "#02-016",
+            "#02-017", "#02-018", "#02-019", "#02-020", "#02-021", "#02-022", "#02-023", "#02-024",
+            "#02-025", "#02-026", "#02-027", "#02-028", "#02-029", "#02-030", "#02-031", "#02-032",
+            "#02-033", "#02-034", "#02-035", "#02-036", "#02-037", "#02-038", "#02-039", "#02-040",
+            "#02-041", "#02-042", "#02-043", "#02-044", "#02-045", "#02-046", "#02-047", "#02-048",
+            "#02-049", "#02-050", "#02-051", "#02-052", "#02-053", "#02-054", "#02-055", "#02-056",
+            "#02-057", "#02-058", "#02-059", "#02-060", "#02-061", "#02-062", "#02-063", "#02-064",
+            "#02-065", "#02-066", "#02-067", "#02-068", "#02-069", "#02-070", "#02-071", "#02-072",
+            "#02-073", "#02-074", "#02-075", "#02-076", "#02-077", "#02-078", "#02-079", "#02-080",
+            "#02-081", "#02-082", "#02-083", "#02-084", "#02-085", "#02-086", "#02-087", "#02-088",
+            "#02-089", "#02-090"
+          ]
+        };
 
-    // Update the stall dropdown when a department is selected
-    document.getElementById("dept").addEventListener("change", () => {
-      const selectedDept = document.getElementById("dept").value;
-      const stalls = stallOptions[selectedDept] || [];
-      populateDropdown("stall", stalls);
+        // Update the stall dropdown when a department is selected
+        document.getElementById("dept").addEventListener("change", () => {
+          const selectedDept = document.getElementById("dept").value;
+          const stalls = stallOptions[selectedDept] || [];
+          populateDropdown("stall", stalls);
+        });
+
+        const stallOptionsData = JSON.parse(localStorage.getItem("stallOptions")) || {};
+        document.getElementById("dept").dispatchEvent(new Event("change"));
+      }
+
+      function populateDropdown(id, options) {
+        const select = document.getElementById(id);
+        select.innerHTML = `<option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>`;
+        options.forEach(option => {
+          select.innerHTML += `<option value="${option}">${option}</option>`;
+        });
+      }
+
+      function showAdminSection() {
+        const adminSection = document.getElementById("adminSection");
+        adminSection.style.display = adminSection.style.display === "none" ? "block" : "none";
+
+        if (adminSection.style.display === "block") {
+          const deptOptions = (localStorage.getItem("deptOptions") || "").split("\n").filter(Boolean);
+          document.getElementById("adminDept").value = deptOptions.join("\n");
+
+          const periodOptions = (localStorage.getItem("periodOptions") || "").split("\n").filter(Boolean);
+          document.getElementById("adminPeriod").value = periodOptions.join("\n");
+        }
+      }
+
+      document.getElementById("adminBtn").addEventListener("click", showAdminSection);
     });
-
-    const stallOptionsData = JSON.parse(localStorage.getItem("stallOptions")) || {};
-    document.getElementById("dept").dispatchEvent(new Event("change"));
-  }
-
-  function populateDropdown(id, options) {
-    const select = document.getElementById(id);
-    select.innerHTML = `<option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>`;
-    options.forEach(option => {
-      select.innerHTML += `<option value="${option}">${option}</option>`;
-    });
-  }
-
-  function showAdminSection() {
-    const adminSection = document.getElementById("adminSection");
-    adminSection.style.display = adminSection.style.display === "none" ? "block" : "none";
-
-    if (adminSection.style.display === "block") {
-      const deptOptions = (localStorage.getItem("deptOptions") || "").split("\n").filter(Boolean);
-      document.getElementById("adminDept").value = deptOptions.join("\n");
-
-      const periodOptions = (localStorage.getItem("periodOptions") || "").split("\n").filter(Boolean);
-      document.getElementById("adminPeriod").value = periodOptions.join("\n");
-    }
-  }
-
-  document.getElementById("adminBtn").addEventListener("click", showAdminSection);
-});
+  </script>
+</body>
+</html>
