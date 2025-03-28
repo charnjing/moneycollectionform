@@ -262,6 +262,12 @@ Dec 2`;
       const defaultDeptValue = "TPY Lor 8 Table Cleaning";
       document.getElementById("dept").value = defaultDeptValue;
       populateDropdown("stall", stallOptions[defaultDeptValue] || []);
+      
+      // Update stalls when department is selected
+      document.getElementById("dept").addEventListener("change", () => {
+        const selectedDept = document.getElementById("dept").value;
+        populateDropdown("stall", stallOptions[selectedDept] || []);
+      });
     }
 
     function populateDropdown(id, options) {
