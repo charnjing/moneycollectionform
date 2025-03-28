@@ -193,9 +193,10 @@
             const initialDept = deptSelect.value || "TPY Lor 8 Table Cleaning"; // Default to first option if missing
             loadStallOptions(initialDept);
 
-            function submitForm(event) {
+            // Submit form with your new logic
+            async function submitForm(event) {
                 event.preventDefault();
-
+        
                 const formData = {
                     datetime: new Date().toISOString(),
                     dept: deptSelect.value,
@@ -204,57 +205,101 @@
                     amount: document.getElementById("amount").value,
                     period: document.getElementById("period").value
                 };
-
-                // Store data offline if offline
-                if (!navigator.onLine) {
-                    const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
-                    submissions.push(formData);
-                    localStorage.setItem("submissions", JSON.stringify(submissions));
-                    showAlert("Form submitted offline. It will sync when online.", "success");
+        
+                // ✅ Check if the server is reachable and submit accordingly
+                if (navigator.onLine && await canReachServer()) {
+                    try {
+                        await sendData(formData);
+                        showMessage("Submission sent!", "green");
+                    } catch (error) {
+                        console.error("Failed to submit form:", error);
+                        showMessage("Failed to submit form.", "red");
+                        saveOffline(formData); // Save to local storage if submission fails
+                    }
                 } else {
-                    sendToGoogleSheet(formData);
+                    saveOffline(formData); // Save to local storage if offline
                 }
             }
-
-            function sendToGoogleSheet(data) {
-                fetch("https://script.google.com/macros/s/AKfycbyw9Pn6FkYlPo875JmJt3_M2a1-SO31JxGnCe-vW-UgzUoK6zjwDREjINrm06_OhzRD/exec", {
-                    method: "POST",
-                    body: JSON.stringify(data),
-                    headers: { "Content-Type": "application/json" },
-                })
-                    .then(response => response.json())
-                    .then(result => {
-                        showAlert("Submission sent!", "success");
-                        syncOfflineSubmissions();
-                    })
-                    .catch(error => {
-                        showAlert("Error submitting form: " + error.message, "error");
-                    });
+        
+            // ✅ Check if server is reachable
+            async function canReachServer() {
+                try {
+                    const response = await fetch(
+                        "https://script.google.com/macros/s/AKfycbyCJRuW4thDz7H_fUIe3ee0uu7yRFpC81l_g33sYygqDmvGDrMcgm88TZkBu_Kb_N8a/exec?ping=true",
+                        { mode: "no-cors" }
+                    );
+                    return true;
+                } catch {
+                    return false;
+                }
             }
-
-            function syncOfflineSubmissions() {
-                if (navigator.onLine) {
-                    const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
-                    if (submissions.length > 0) {
-                        submissions.forEach(submission => {
-                            sendToGoogleSheet(submission);
-                        });
-                        localStorage.removeItem("submissions");
-                        showAlert("Offline submissions synced!", "success");
+        
+            // ✅ Save to local storage if offline
+            function saveOffline(data) {
+                const offlineData = JSON.parse(localStorage.getItem("offlineSubmissions")) || [];
+                offlineData.push(data);
+                localStorage.setItem("offlineSubmissions", JSON.stringify(offlineData));
+                showMessage("Submission saved offline.", "blue");
+            }
+        
+            // ✅ Sync offline data when back online
+            async function syncOfflineData() {
+                const offlineData = JSON.parse(localStorage.getItem("offlineSubmissions")) || [];
+                if (offlineData.length === 0) return;
+        
+                let syncedCount = 0;
+                for (const data of offlineData) {
+                    try {
+                        await sendData(data);
+                        syncedCount++;
+                    } catch (error) {
+                        console.error("Failed to sync offline data:", error);
                     }
                 }
+        
+                if (syncedCount > 0) {
+                    offlineData.splice(0, syncedCount);
+                    localStorage.setItem("offlineSubmissions", JSON.stringify(offlineData));
+                    showMessage(`${syncedCount} offline submission(s) synced!`, "green");
+                }
             }
-
-            // Sync when back online
-            window.addEventListener("online", syncOfflineSubmissions);
-
-            // Show alert message
-            function showAlert(message, type) {
-                const alertBox = document.createElement("div");
-                alertBox.classList.add("alert", type === "error" ? "error" : "success");
-                alertBox.textContent = message;
-                document.body.appendChild(alertBox);
-                setTimeout(() => alertBox.remove(), 3000);
+        
+            // ✅ Send data to Google Sheets
+            async function sendData(data) {
+                try {
+                    const response = await fetch(
+                        "https://script.google.com/macros/s/AKfycbyCJRuW4thDz7H_fUIe3ee0uu7yRFpC81l_g33sYygqDmvGDrMcgm88TZkBu_Kb_N8a/exec",
+                        {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(data),
+                            mode: "no-cors"
+                        }
+                    );
+        
+                    showMessage("Submission synced successfully!", "green");
+                } catch (error) {
+                    console.error("Sync error:", error);
+                    showMessage("Failed to sync submission.", "red");
+                }
+            }
+        
+            // ✅ Show message to user
+            function showMessage(text, color) {
+                message.innerText = text;
+                message.style.color = color;
+            }
+        
+            // ✅ Periodic sync check every 10 seconds
+            setInterval(async () => {
+                if (navigator.onLine && await canReachServer()) {
+                    syncOfflineData();
+                }
+            }, 10000);
+        
+            // Attach submitForm function to the form submit event
+            document.querySelector("form").onsubmit = submitForm;
+        });
             }
         });
     </script>
