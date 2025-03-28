@@ -19,8 +19,8 @@
 
             // Load department options
             function loadDeptOptions() {
-                const depts = Object.keys(defaultStalls);
-                depts.forEach(dept => {
+                deptSelect.innerHTML = ""; // Clear existing options
+                Object.keys(defaultStalls).forEach(dept => {
                     const option = document.createElement("option");
                     option.value = dept;
                     option.textContent = dept;
@@ -38,6 +38,8 @@
                         option.textContent = stall;
                         stallSelect.appendChild(option);
                     });
+                } else {
+                    console.warn(`No stall options found for dept: ${dept}`);
                 }
             }
 
@@ -46,64 +48,68 @@
                 loadStallOptions(e.target.value);
             });
 
-            // Initialize options on page load
+            // Initialize department and stall options on page load
             loadDeptOptions();
-            loadStallOptions(deptSelect.value);
-        });
 
-        function submitForm(event) {
-            event.preventDefault();
+            // 🚨 Fix: Force stall loading on initial load
+            const initialDept = deptSelect.value || "TPY Lor 8 Table Cleaning"; // Default to first option if missing
+            loadStallOptions(initialDept);
 
-            const formData = {
-                datetime: new Date().toISOString(),
-                dept: document.getElementById("dept").value,
-                stall: document.getElementById("stall").value,
-                payment: document.querySelector('input[name="payment"]:checked')?.value || "",
-                amount: document.getElementById("amount").value,
-                period: document.getElementById("period").value
-            };
+            function submitForm(event) {
+                event.preventDefault();
 
-            // Store data offline if offline
-            if (!navigator.onLine) {
-                const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
-                submissions.push(formData);
-                localStorage.setItem("submissions", JSON.stringify(submissions));
-                alert("Form submitted offline. It will sync when online.");
-            } else {
-                sendToGoogleSheet(formData);
-            }
-        }
+                const formData = {
+                    datetime: new Date().toISOString(),
+                    dept: deptSelect.value,
+                    stall: stallSelect.value,
+                    payment: document.querySelector('input[name="payment"]:checked')?.value || "",
+                    amount: document.getElementById("amount").value,
+                    period: document.getElementById("period").value
+                };
 
-        function sendToGoogleSheet(data) {
-            fetch("https://script.google.com/macros/s/AKfycbyw9Pn6FkYlPo875JmJt3_M2a1-SO31JxGnCe-vW-UgzUoK6zjwDREjINrm06_OhzRD/exec", {
-                method: "POST",
-                body: JSON.stringify(data),
-                headers: { "Content-Type": "application/json" },
-            })
-                .then(response => response.json())
-                .then(result => {
-                    alert("Submission sent!");
-                    syncOfflineSubmissions(); // Try syncing offline submissions after successful submission
-                })
-                .catch(error => {
-                    alert("Error submitting form: " + error.message);
-                });
-        }
-
-        function syncOfflineSubmissions() {
-            if (navigator.onLine) {
-                const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
-                if (submissions.length > 0) {
-                    submissions.forEach(submission => {
-                        sendToGoogleSheet(submission);
-                    });
-                    localStorage.removeItem("submissions");
-                    alert("Offline submissions synced!");
+                // Store data offline if offline
+                if (!navigator.onLine) {
+                    const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
+                    submissions.push(formData);
+                    localStorage.setItem("submissions", JSON.stringify(submissions));
+                    alert("Form submitted offline. It will sync when online.");
+                } else {
+                    sendToGoogleSheet(formData);
                 }
             }
-        }
 
-        window.addEventListener("online", syncOfflineSubmissions);
+            function sendToGoogleSheet(data) {
+                fetch("https://script.google.com/macros/s/AKfycbyw9Pn6FkYlPo875JmJt3_M2a1-SO31JxGnCe-vW-UgzUoK6zjwDREjINrm06_OhzRD/exec", {
+                    method: "POST",
+                    body: JSON.stringify(data),
+                    headers: { "Content-Type": "application/json" },
+                })
+                    .then(response => response.json())
+                    .then(result => {
+                        alert("Submission sent!");
+                        syncOfflineSubmissions();
+                    })
+                    .catch(error => {
+                        alert("Error submitting form: " + error.message);
+                    });
+            }
+
+            function syncOfflineSubmissions() {
+                if (navigator.onLine) {
+                    const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
+                    if (submissions.length > 0) {
+                        submissions.forEach(submission => {
+                            sendToGoogleSheet(submission);
+                        });
+                        localStorage.removeItem("submissions");
+                        alert("Offline submissions synced!");
+                    }
+                }
+            }
+
+            // Sync when back online
+            window.addEventListener("online", syncOfflineSubmissions);
+        });
     </script>
 </head>
 <body>
