@@ -1,319 +1,133 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Money Collection Form</title>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
-    
-    <style>
-        /* General Styles */
-        body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f9f9f9;
-            margin: 0;
-            padding: 20px;
-        }
-    
-        h2 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            text-align: center;
-            color: #333;
-        }
-    
+<style>
+    /* General Styles */
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f9f9f9;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h2 {
+        font-size: 24px;
+        margin-bottom: 20px;
+        text-align: center;
+        color: #333;
+    }
+
+    form {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    label {
+        font-size: 14px;
+        font-weight: 500;
+        color: #555;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    select, input[type="number"], input[type="radio"] {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        background-color: #fff;
+    }
+
+    input[type="radio"] {
+        width: auto;
+        margin-right: 5px;
+    }
+
+    select:focus, input[type="number"]:focus {
+        border-color: #4285F4;
+        outline: none;
+        box-shadow: 0 0 5px rgba(66, 133, 244, 0.4);
+    }
+
+    button[type="submit"] {
+        background-color: #4285F4;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 4px;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    button[type="submit"]:hover {
+        background-color: #357ae8;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 8px;
+    }
+
+    .radio-group label {
+        font-weight: normal;
+    }
+
+    /* Alert Message */
+    .alert {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px;
+        text-align: center;
+        margin-top: 10px;
+        border-radius: 4px;
+        display: none;
+    }
+
+    .alert.error {
+        background-color: #f44336;
+    }
+
+    /* Mobile Responsiveness */
+    @media (max-width: 600px) {
         form {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
+            padding: 15px;
         }
-    
+
         label {
-            font-size: 14px;
-            font-weight: 500;
-            color: #555;
-            margin-bottom: 8px;
-            display: block;
-        }
-    
-        select, input[type="number"], input[type="radio"] {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            background-color: #fff;
-        }
-    
-        input[type="radio"] {
-            width: auto;
-            margin-right: 5px;
-        }
-    
-        select:focus, input[type="number"]:focus {
-            border-color: #4285F4;
-            outline: none;
-            box-shadow: 0 0 5px rgba(66, 133, 244, 0.4);
-        }
-    
-        button[type="submit"] {
-            background-color: #4285F4;
-            color: white;
-            border: none;
-            padding: 10px 20px;
             font-size: 16px;
-            cursor: pointer;
-            border-radius: 4px;
-            width: 100%;
-            margin-top: 20px;
         }
-    
-        button[type="submit"]:hover {
-            background-color: #357ae8;
+
+        select, input[type="number"], input[type="radio"], button[type="submit"] {
+            font-size: 16px;
+            padding: 12px;
         }
-    
-        .form-group {
-            margin-bottom: 20px;
-        }
-    
-        .form-group:last-child {
-            margin-bottom: 0;
-        }
-    
+
         .radio-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 8px;
+            flex-direction: column;
         }
-    
-        .radio-group label {
-            font-weight: normal;
+
+        .form-group {
+            margin-bottom: 15px;
         }
-    
-        /* Alert Message */
-        .alert {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px;
-            text-align: center;
-            margin-top: 10px;
-            border-radius: 4px;
-            display: none;
+
+        button[type="submit"] {
+            font-size: 18px;
+            padding: 14px;
         }
-    
-        .alert.error {
-            background-color: #f44336;
-        }
-    
-        /* Mobile Responsiveness */
-        @media (max-width: 600px) {
-            form {
-                padding: 15px;
-            }
-    
-            label {
-                font-size: 16px;
-            }
-    
-            select, input[type="number"], input[type="radio"], button[type="submit"] {
-                font-size: 16px;
-                padding: 12px;
-            }
-    
-            .radio-group {
-                flex-direction: column;
-            }
-    
-            .form-group {
-                margin-bottom: 15px;
-            }
-    
-            button[type="submit"] {
-                font-size: 18px;
-                padding: 14px;
-            }
-        }
-    </style>
-    
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const deptSelect = document.getElementById("dept");
-            const stallSelect = document.getElementById("stall");
-
-            // Default stall options
-            const defaultStalls = {
-                "TPY Lor 8 Table Cleaning": Array.from({ length: 80 }, (_, i) => #01-${String(i + 1).padStart(2, '0')}),
-                "TPY Lor 8 Dishwashing": Array.from({ length: 80 }, (_, i) => #01-${String(i + 1).padStart(2, '0')}),
-                "TPY Lor 8 Utensils Rental": Array.from({ length: 80 }, (_, i) => #01-${String(i + 1).padStart(2, '0')}),
-                "TPY Lor 4 Table Cleaning": Array.from({ length: 28 }, (_, i) => #01-${String(i + 33).padStart(2, '0')})
-            };
-
-            // Load department options
-            function loadDeptOptions() {
-                deptSelect.innerHTML = ""; // Clear existing options
-                Object.keys(defaultStalls).forEach(dept => {
-                    const option = document.createElement("option");
-                    option.value = dept;
-                    option.textContent = dept;
-                    deptSelect.appendChild(option);
-                });
-            }
-
-            // Load stall options based on selected department
-            function loadStallOptions(dept) {
-                stallSelect.innerHTML = ""; // Clear existing options
-                if (defaultStalls[dept]) {
-                    defaultStalls[dept].forEach(stall => {
-                        const option = document.createElement("option");
-                        option.value = stall;
-                        option.textContent = stall;
-                        stallSelect.appendChild(option);
-                    });
-                } else {
-                    console.warn(No stall options found for dept: ${dept});
-                }
-            }
-
-            // Event listener for department change
-            deptSelect.addEventListener("change", (e) => {
-                loadStallOptions(e.target.value);
-            });
-
-            // Initialize department and stall options on page load
-            loadDeptOptions();
-
-            // 🚨 Fix: Force stall loading on initial load
-            const initialDept = deptSelect.value || "TPY Lor 8 Table Cleaning"; // Default to first option if missing
-            loadStallOptions(initialDept);
-
-            function submitForm(event) {
-                event.preventDefault();
-
-                const formData = {
-                    datetime: new Date().toISOString(),
-                    dept: deptSelect.value,
-                    stall: stallSelect.value,
-                    payment: document.querySelector('input[name="payment"]:checked')?.value || "",
-                    amount: document.getElementById("amount").value,
-                    period: document.getElementById("period").value
-                };
-
-                // Store data offline if offline
-                if (!navigator.onLine) {
-                    const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
-                    submissions.push(formData);
-                    localStorage.setItem("submissions", JSON.stringify(submissions));
-                    showAlert("Form submitted offline. It will sync when online.", "success");
-                } else {
-                    sendToGoogleSheet(formData);
-                }
-            }
-
-            function sendToGoogleSheet(data) {
-                fetch("https://script.google.com/macros/s/AKfycbyw9Pn6FkYlPo875JmJt3_M2a1-SO31JxGnCe-vW-UgzUoK6zjwDREjINrm06_OhzRD/exec", {
-                    method: "POST",
-                    body: JSON.stringify(data),
-                    headers: { "Content-Type": "application/json" },
-                })
-                    .then(response => response.json())
-                    .then(result => {
-                        showAlert("Submission sent!", "success");
-                        syncOfflineSubmissions();
-                    })
-                    .catch(error => {
-                        showAlert("Error submitting form: " + error.message, "error");
-                    });
-            }
-
-            function syncOfflineSubmissions() {
-                if (navigator.onLine) {
-                    const submissions = JSON.parse(localStorage.getItem("submissions") || "[]");
-                    if (submissions.length > 0) {
-                        submissions.forEach(submission => {
-                            sendToGoogleSheet(submission);
-                        });
-                        localStorage.removeItem("submissions");
-                        showAlert("Offline submissions synced!", "success");
-                    }
-                }
-            }
-
-            // Sync when back online
-            window.addEventListener("online", syncOfflineSubmissions);
-
-            // Show alert message
-            function showAlert(message, type) {
-                const alertBox = document.createElement("div");
-                alertBox.classList.add("alert", type === "error" ? "error" : "success");
-                alertBox.textContent = message;
-                document.body.appendChild(alertBox);
-                setTimeout(() => alertBox.remove(), 3000);
-            }
-        });
-    </script>
-</head>
-<body>
-    <h2>Money Collection Form</h2>
-    <form onsubmit="submitForm(event)">
-        <div class="form-group">
-            <label for="dept">Dept:</label>
-            <select id="dept" required></select>
-        </div>
-
-        <div class="form-group">
-            <label for="stall">Stall Number:</label>
-            <select id="stall" required></select>
-        </div>
-
-        <div class="form-group radio-group">
-            <label>Payment:</label>
-            <label><input type="radio" name="payment" value="Cash" required> Cash</label>
-            <label><input type="radio" name="payment" value="Cashless" required> Cashless</label>
-        </div>
-
-        <div class="form-group">
-            <label for="amount">Amount:</label>
-            <input type="number" id="amount" step="0.01" required>
-        </div>
-
-        <div class="form-group">
-            <label for="period">Period:</label>
-            <select id="period" required>
-                <option value="Jan 1">Jan 1</option>
-                <option value="Jan 2">Jan 2</option>
-                <option value="Feb 1">Feb 1</option>
-                <option value="Feb 2">Feb 2</option>
-                <option value="Mar 1">Mar 1</option>
-                <option value="Mar 2">Mar 2</option>
-                <option value="Apr 1">Apr 1</option>
-                <option value="Apr 2">Apr 2</option>
-                <option value="May 1">May 1</option>
-                <option value="May 2">May 2</option>
-                <option value="Jun 1">Jun 1</option>
-                <option value="Jun 2">Jun 2</option>
-                <option value="Jul 1">Jul 1</option>
-                <option value="Jul 2">Jul 2</option>
-                <option value="Aug 1">Aug 1</option>
-                <option value="Aug 2">Aug 2</option>
-                <option value="Sep 1">Sep 1</option>
-                <option value="Sep 2">Sep 2</option>
-                <option value="Oct 1">Oct 1</option>
-                <option value="Oct 2">Oct 2</option>
-                <option value="Nov 1">Nov 1</option>
-                <option value="Nov 2">Nov 2</option>
-                <option value="Dec 1">Dec 1</option>
-                <option value="Dec 2">Dec 2</option>
-            </select>
-        </div>
-
-        <button type="submit">Submit</button>
-    </form>
-</body>
-</html>
+    }
+</style>
