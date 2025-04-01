@@ -122,17 +122,26 @@
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("dateTime").value = new Date().toLocaleString();
-
+  
+    // Define the department and stall options
+    const deptStalls = {
+      "TPY Lor 8 Table Cleaning": Array.from({ length: 80 }, (_, i) => `#1-${String(i + 1).padStart(2, "0")}`),
+      "TPY Lor 8 Dishwashing": Array.from({ length: 80 }, (_, i) => `#1-${String(i + 1).padStart(2, "0")}`),
+      "TPY Lor 8 Utensils Rental": Array.from({ length: 80 }, (_, i) => `#1-${String(i + 1).padStart(2, "0")}`),
+      "TPY Lor 4 Table Cleaning": Array.from({ length: 28 }, (_, i) => `#1-${String(i + 33).padStart(2, "0")}`),
+      "Chinatown": Array.from({ length: 226 }, (_, i) => `#2-${String(i + 1).padStart(3, "0")}`)
+    };
+  
     loadDropdownOptions();
-
+  
     const form = document.getElementById("moneyCollectionForm");
     const message = document.getElementById("message");
     const submitBtn = document.getElementById("submitBtn");
-
+  
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       submitBtn.disabled = true;
-
+  
       const formData = {
         dateTime: document.getElementById("dateTime").value,
         dept: document.getElementById("dept").value,
@@ -141,18 +150,18 @@
         payment: document.querySelector('input[name="payment"]:checked').value,
         amount: document.getElementById("amount").value
       };
-
+  
       if (navigator.onLine && (await canReachServer())) {
         await sendData(formData);
       } else {
         saveOffline(formData);
       }
-
+  
       form.reset();
       document.getElementById("dateTime").value = new Date().toLocaleString();
       submitBtn.disabled = false;
     });
-
+  
     async function canReachServer() {
       try {
         const response = await fetch(
@@ -164,18 +173,18 @@
         return false;
       }
     }
-
+  
     function saveOffline(data) {
       const offlineData = JSON.parse(localStorage.getItem("offlineSubmissions")) || [];
       offlineData.push(data);
       localStorage.setItem("offlineSubmissions", JSON.stringify(offlineData));
       showMessage("Submission saved offline.", "blue");
     }
-
+  
     async function syncOfflineData() {
       const offlineData = JSON.parse(localStorage.getItem("offlineSubmissions")) || [];
       if (offlineData.length === 0) return;
-
+  
       let syncedCount = 0;
       for (const data of offlineData) {
         try {
@@ -185,14 +194,14 @@
           console.error("Failed to sync offline data:", error);
         }
       }
-
+  
       if (syncedCount > 0) {
         offlineData.splice(0, syncedCount);
         localStorage.setItem("offlineSubmissions", JSON.stringify(offlineData));
         showMessage(`${syncedCount} offline submission(s) synced!`, "green");
       }
     }
-
+  
     async function sendData(data) {
       try {
         await fetch(
@@ -210,62 +219,64 @@
         showMessage("Failed to sync submission.", "red");
       }
     }
-
+  
     function showMessage(text, color) {
       message.innerText = text;
       message.style.color = color;
     }
-
+  
     setInterval(async () => {
       if (navigator.onLine && (await canReachServer())) {
         syncOfflineData();
       }
     }, 10000);
-
+  
     function loadDropdownOptions() {
       const defaultDept = `TPY Lor 8 Table Cleaning
-TPY Lor 8 Dishwashing
-TPY Lor 8 Utensils Rental
-TPY Lor 4 Table Cleaning
-Chinatown`;
+  TPY Lor 8 Dishwashing
+  TPY Lor 8 Utensils Rental
+  TPY Lor 4 Table Cleaning
+  Chinatown`;
       const defaultPeriod = `Jan 1
-Jan 2
-Feb 1
-Feb 2
-Mar 1
-Mar 2
-Apr 1
-Apr 2
-May 1
-May 2
-Jun 1
-Jun 2
-Jul 1
-Jul 2
-Aug 1
-Aug 2
-Sep 1
-Sep 2
-Oct 1
-Oct 2
-Nov 1
-Nov 2
-Dec 1
-Dec 2`;
-
-      const deptOptions = (localStorage.getItem("deptOptions") || defaultDept).split("\n").filter(Boolean);
+  Jan 2
+  Feb 1
+  Feb 2
+  Mar 1
+  Mar 2
+  Apr 1
+  Apr 2
+  May 1
+  May 2
+  Jun 1
+  Jun 2
+  Jul 1
+  Jul 2
+  Aug 1
+  Aug 2
+  Sep 1
+  Sep 2
+  Oct 1
+  Oct 2
+  Nov 1
+  Nov 2
+  Dec 1
+  Dec 2`;
+  
+      const deptOptions = (localStorage.getItem("deptOptions") || defaultDept).split("\n").filter(Boolean); 
       populateDropdown("dept", deptOptions);
       populateDropdown("selectDept", deptOptions);
-
+  
       const periodOptions = (localStorage.getItem("periodOptions") || defaultPeriod).split("\n").filter(Boolean);
       populateDropdown("period", periodOptions);
-
-      const stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || {};
+  
+      // Populate the stall options when the department is selected
       document.getElementById("dept").addEventListener("change", () => {
-        populateDropdown("stall", stallOptions[document.getElementById("dept").value] || []);
+        const selectedDept = document.getElementById("dept").value;
+        const stallOptions = deptStalls[selectedDept] || [];
+        populateDropdown("stall", stallOptions);
       });
     }
-
+  
     function populateDropdown(id, options) {
       const select = document.getElementById(id);
       select.innerHTML = `<option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>`;
@@ -273,40 +284,40 @@ Dec 2`;
         select.innerHTML += `<option value="${option}">${option}</option>`;
       });
     }
-
+  
     function showAdminSection() {
       const adminSection = document.getElementById("adminSection");
       adminSection.style.display = adminSection.style.display === "none" ? "block" : "none";
-
+  
       if (adminSection.style.display === "block") {
         const deptOptions = (localStorage.getItem("deptOptions") || "").split("\n").filter(Boolean);
         document.getElementById("adminDept").value = deptOptions.join("\n");
-
+  
         const periodOptions = (localStorage.getItem("periodOptions") || "").split("\n").filter(Boolean);
         document.getElementById("adminPeriod").value = periodOptions.join("\n");
       }
     }
-
+  
     function saveDeptOptions() {
       const newDeptOptions = document.getElementById("adminDept").value.split("\n").filter(Boolean);
       localStorage.setItem("deptOptions", newDeptOptions.join("\n"));
       loadDropdownOptions();
       alert("Department options saved!");
     }
-
+  
     function savePeriodOptions() {
       const newPeriodOptions = document.getElementById("adminPeriod").value.split("\n").filter(Boolean);
       localStorage.setItem("periodOptions", newPeriodOptions.join("\n"));
       loadDropdownOptions();
       alert("Period options saved!");
     }
-
+  
     function generateStalls() {
       const dept = document.getElementById("selectDept").value;
       const level = document.getElementById("levelPrefix").value;
       const start = parseInt(document.getElementById("startRange").value);
       const end = parseInt(document.getElementById("endRange").value);
-
+  
       if (dept && level && !isNaN(start) && !isNaN(end)) {
         const stalls = Array.from({ length: end - start + 1 }, (_, i) => `${level}${String(start + i).padStart(2, "0")}`);
         const stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || {};
@@ -318,7 +329,7 @@ Dec 2`;
         alert("Please fill in all stall fields correctly.");
       }
     }
-
+  
     window.saveDeptOptions = saveDeptOptions;
     window.savePeriodOptions = savePeriodOptions;
     window.generateStalls = generateStalls;
