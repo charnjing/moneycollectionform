@@ -189,7 +189,7 @@
       if (syncedCount > 0) {
         offlineData.splice(0, syncedCount);
         localStorage.setItem("offlineSubmissions", JSON.stringify(offlineData));
-        showMessage(${syncedCount} offline submission(s) synced!, "green");
+        showMessage(`${syncedCount} offline submission(s) synced!`, "green");
       }
     }
 
@@ -223,12 +223,12 @@
     }, 10000);
 
     function loadDropdownOptions() {
-      const defaultDept = TPY Lor 8 Table Cleaning
+      const defaultDept = `TPY Lor 8 Table Cleaning
 TPY Lor 8 Dishwashing
 TPY Lor 8 Utensils Rental
 TPY Lor 4 Table Cleaning
-Chinatown;
-      const defaultPeriod = Jan 1
+Chinatown`;
+      const defaultPeriod = `Jan 1
 Jan 2
 Feb 1
 Feb 2
@@ -251,16 +251,8 @@ Oct 2
 Nov 1
 Nov 2
 Dec 1
-Dec 2;
-      
-    const stallNumbers = {
-      "TPY Lor 8 Table Cleaning": [...Array(80)].map((_, i) => `#01-${String(i + 1).padStart(2, '0')}`),
-      "TPY Lor 8 Dishwashing": [...Array(80)].map((_, i) => `#01-${String(i + 1).padStart(2, '0')}`),
-      "TPY Lor 8 Utensils Rental": [...Array(80)].map((_, i) => `#01-${String(i + 1).padStart(2, '0')}`),
-      "TPY Lor 4 Table Cleaning": [...Array(28)].map((_, i) => `#01-${String(i + 33).padStart(2, '0')}`),
-      "Chinatown": [...Array(226)].map((_, i) => `#02-${String(i + 1).padStart(3, '0')}`)
-    };
-    
+Dec 2`;
+
       const deptOptions = (localStorage.getItem("deptOptions") || defaultDept).split("\n").filter(Boolean);
       populateDropdown("dept", deptOptions);
       populateDropdown("selectDept", deptOptions);
@@ -276,9 +268,9 @@ Dec 2;
 
     function populateDropdown(id, options) {
       const select = document.getElementById(id);
-      select.innerHTML = <option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>;
+      select.innerHTML = `<option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>`;
       options.forEach(option => {
-        select.innerHTML += <option value="${option}">${option}</option>;
+        select.innerHTML += `<option value="${option}">${option}</option>`;
       });
     }
 
@@ -314,20 +306,9 @@ Dec 2;
       const level = document.getElementById("levelPrefix").value;
       const start = parseInt(document.getElementById("startRange").value);
       const end = parseInt(document.getElementById("endRange").value);
-      
-    departmentSelect.addEventListener("change", () => {
-      const selectedDept = departmentSelect.value;
-      stallSelect.innerHTML = '<option value="">Select Stall</option>';
-      
-      if (selectedDept && stallNumbers[selectedDept]) {
-        stallNumbers[selectedDept].forEach(stall => {
-          const option = document.createElement("option");
-          option.value = stall;
-          option.textContent = stall;
-          stallSelect.appendChild(option);
-          
+
       if (dept && level && !isNaN(start) && !isNaN(end)) {
-        const stalls = Array.from({ length: end - start + 1 }, (_, i) => ${level}${String(start + i).padStart(2, "0")});
+        const stalls = Array.from({ length: end - start + 1 }, (_, i) => `${level}${String(start + i).padStart(2, "0")}`);
         const stallOptions = JSON.parse(localStorage.getItem("stallOptions")) || {};
         stallOptions[dept] = stalls;
         localStorage.setItem("stallOptions", JSON.stringify(stallOptions));
