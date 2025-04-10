@@ -131,13 +131,6 @@
       "TPY Lor 4 Table Cleaning": Array.from({ length: 28 }, (_, i) => `#1-${String(i + 33).padStart(2, "0")}`),
       "Chinatown": Array.from({ length: 226 }, (_, i) => `#2-${String(i + 1).padStart(3, "0")}`)
     };
- 
-    let allStallOptions = [];
-    for (let dept in deptStalls) {
-        allStallOptions = allStallOptions.concat(deptStalls[dept]);
-    }
-    allStallOptions = [...new Set(allStallOptions)].sort();
-
   
     loadDropdownOptions();
   
@@ -269,27 +262,21 @@
   Dec 1
   Dec 2`;
   
-      const deptOptions = (localStorage.getItem("deptOptions") || defaultDept).split("\n").filter(Boolean);
+      const deptOptions = (localStorage.getItem("deptOptions") || defaultDept).split("\n").filter(Boolean); 
       populateDropdown("dept", deptOptions);
       populateDropdown("selectDept", deptOptions);
   
       const periodOptions = (localStorage.getItem("periodOptions") || defaultPeriod).split("\n").filter(Boolean);
       populateDropdown("period", periodOptions);
-
-
-      populateDropdown("stall", allStallOptions);
-      
+  
       // Populate the stall options when the department is selected
       document.getElementById("dept").addEventListener("change", () => {
-          const selectedDept = document.getElementById("dept").value;
-          const stallOptions = deptStalls[selectedDept] || [];
-          console.log(`Selected Department: ${selectedDept}`);
-          console.log(`Stall Options: ${stallOptions}`);
-          populateDropdown("stall", stallOptions);
+        const selectedDept = document.getElementById("dept").value;
+        const stallOptions = deptStalls[selectedDept] || [];
+        populateDropdown("stall", stallOptions);
       });
-    } 
-
-    
+    }
+  
     function populateDropdown(id, options) {
       const select = document.getElementById(id);
       select.innerHTML = `<option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>`;
@@ -303,7 +290,7 @@
       adminSection.style.display = adminSection.style.display === "none" ? "block" : "none";
   
       if (adminSection.style.display === "block") {
-        const deptOptions = (localStorage.getItem("deptOptions") || "").split("\n").map(dept => dept.trim()).filter(Boolean);
+        const deptOptions = (localStorage.getItem("deptOptions") || "").split("\n").filter(Boolean);
         document.getElementById("adminDept").value = deptOptions.join("\n");
   
         const periodOptions = (localStorage.getItem("periodOptions") || "").split("\n").filter(Boolean);
