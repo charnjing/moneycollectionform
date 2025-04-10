@@ -275,12 +275,12 @@
   
     function populateDropdown(id, options) {
       const select = document.getElementById(id);
-      select.innerHTML = `<option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>`;
+      select.innerHTML = <option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>;
       options.forEach(option => {
-        const trimmed = option.trim();
-        select.innerHTML += `<option value="${trimmed}">${trimmed}</option>`;
+        select.innerHTML += <option value="${option}">${option}</option>;
       });
     }
+  
 
   
     function showAdminSection() {
