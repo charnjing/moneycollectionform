@@ -117,6 +117,8 @@
   <button onclick="savePeriodOptions()">Save Period Options</button>
 </div>
 
+<button onclick="resetLocalStorage()" style="background-color: #e74c3c;">Reset All Data</button>
+
 <button onclick="showAdminSection()">Admin Edit</button>
 
 <script>
@@ -237,6 +239,7 @@
   TPY Lor 8 Utensils Rental
   TPY Lor 4 Table Cleaning
   Chinatown`;
+
       const defaultPeriod = `Jan 1
   Jan 2
   Feb 1
@@ -311,7 +314,17 @@
       loadDropdownOptions();
       alert("Period options saved!");
     }
-  
+   
+    function resetLocalStorage() {
+      if (confirm("Are you sure you want to erase all saved data? This cannot be undone.")) {
+        localStorage.removeItem("deptOptions");
+        localStorage.removeItem("periodOptions");
+        localStorage.removeItem("offlineSubmissions");
+        alert("All saved data has been cleared.");
+        location.reload(); // Reload the page to refresh dropdowns
+      }
+    }
+
     function generateStalls() {
       const dept = document.getElementById("selectDept").value;
       const level = document.getElementById("levelPrefix").value;
