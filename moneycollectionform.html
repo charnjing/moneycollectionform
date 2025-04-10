@@ -295,8 +295,8 @@
       
         populateDropdown("stall", stallOptions);
 
-        if (TomSelect.instances['stall']) {
-          TomSelect.instances['stall'].destroy();
+        if (document.querySelector('#stall').tomselect) {
+          document.querySelector('#stall').tomselect.destroy();
         }
         new TomSelect('#stall', {
           create: false,
