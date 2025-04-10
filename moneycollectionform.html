@@ -131,6 +131,13 @@
       "TPY Lor 4 Table Cleaning": Array.from({ length: 28 }, (_, i) => `#1-${String(i + 33).padStart(2, "0")}`),
       "Chinatown": Array.from({ length: 226 }, (_, i) => `#2-${String(i + 1).padStart(3, "0")}`)
     };
+ 
+    let allStallOptions = [];
+    for (let dept in deptStalls) {
+        allStallOptions = allStallOptions.concat(deptStalls[dept]);
+    }
+    allStallOptions = [...new Set(allStallOptions)].sort();
+
   
     loadDropdownOptions();
   
@@ -268,7 +275,10 @@
   
       const periodOptions = (localStorage.getItem("periodOptions") || defaultPeriod).split("\n").filter(Boolean);
       populateDropdown("period", periodOptions);
-  
+
+
+      populateDropdown("stall", allStallOptions);
+      
       // Populate the stall options when the department is selected
       document.getElementById("dept").addEventListener("change", () => {
           const selectedDept = document.getElementById("dept").value;
@@ -278,6 +288,7 @@
           populateDropdown("stall", stallOptions);
       });
     } 
+
     
     function populateDropdown(id, options) {
       const select = document.getElementById(id);
