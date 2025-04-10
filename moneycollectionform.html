@@ -87,8 +87,8 @@
   <div class="message" id="message"></div>
 </form>
 
-<button onclick="localStorage.clear(); location.reload();">
-  Reset All Options
+<button onclick="resetToDefault()" style="margin-top: 20px; background-color: red;">
+  Reset to Default Settings
 </button>
 
 <!-- Admin Section -->
@@ -223,7 +223,14 @@
         showMessage("Failed to sync submission.", "red");
       }
     }
-  
+     
+    function resetToDefault() {
+      if (confirm("Are you sure you want to reset to default settings? This will clear all saved departments, stalls, and periods.")) {
+        localStorage.clear();
+        location.reload();
+      }
+    }
+
     function showMessage(text, color) {
       message.innerText = text;
       message.style.color = color;
@@ -276,12 +283,10 @@
       // Populate the stall options when the department is selected
       document.getElementById("dept").addEventListener("change", () => {
         const selectedDept = document.getElementById("dept").value;
-        console.log("Selected Department: ", selectedDept);  // Debugging line
         const stallOptions = deptStalls[selectedDept] || [];
-        console.log("Stall Options: ", stallOptions);  // Debugging line
         populateDropdown("stall", stallOptions);
       });
-
+    }
     
     function populateDropdown(id, options) {
       const select = document.getElementById(id);
