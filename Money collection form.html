@@ -232,11 +232,20 @@
     }, 10000);
   
     function loadDropdownOptions() {
-      const defaultDept = `TPY Lor 8 Table Cleaning
-  TPY Lor 8 Dishwashing
-  TPY Lor 8 Utensils Rental
-  TPY Lor 4 Table Cleaning
-  Chinatown`;
+      const dropdown = document.getElementById("dropdown");
+      dropdown.innerHTML = "";
+    
+      const defaultDept = "TPY Blk 95\nTPY Blk 100\nTPY Blk 101\nTPY Blk 104\nChinatown";
+      const deptOptions = defaultDept.split("\n").filter(Boolean);
+    
+      deptOptions.forEach(option => {
+        const optionElement = document.createElement("option");
+        optionElement.value = option;
+        optionElement.textContent = option;
+        dropdown.appendChild(optionElement);
+      });
+    }
+
       const defaultPeriod = `Jan 1
   Jan 2
   Feb 1
