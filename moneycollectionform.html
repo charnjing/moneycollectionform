@@ -275,9 +275,23 @@
       // Populate the stall options when the department is selected
       document.getElementById("dept").addEventListener("change", () => {
         const selectedDept = document.getElementById("dept").value;
-        const stallOptions = deptStalls[selectedDept] || [];
+        let stallOptions = [];
+      
+        if (selectedDept === "TPY Lor 8 Table Cleaning") {
+          stallOptions = Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, "0")}`);
+        } else if (selectedDept === "TPY Lor 8 Dishwashing") {
+          stallOptions = Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, "0")}`);
+        } else if (selectedDept === "TPY Lor 8 Utensils Rental") {
+          stallOptions = Array.from({ length: 80 }, (_, i) => `#01-${String(i + 1).padStart(2, "0")}`);
+        } else if (selectedDept === "TPY Lor 4 Table Cleaning") {
+          stallOptions = Array.from({ length: 28 }, (_, i) => `#01-${String(i + 33).padStart(2, "0")}`);
+        } else if (selectedDept === "Chinatown") {
+          stallOptions = Array.from({ length: 226 }, (_, i) => `#2-${String(i + 1).padStart(3, "0")}`);
+        }
+      
         populateDropdown("stall", stallOptions);
       });
+
     }
   
     function populateDropdown(id, options) {
