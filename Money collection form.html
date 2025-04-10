@@ -231,20 +231,7 @@
       }
     }, 10000);
   
-    function loadDropdownOptions() {
-      const dropdown = document.getElementById("dropdown");
-      dropdown.innerHTML = "";
-    
       const defaultDept = "TPY Blk 95\nTPY Blk 100\nTPY Blk 101\nTPY Blk 104\nChinatown";
-      const deptOptions = defaultDept.split("\n").filter(Boolean);
-    
-      deptOptions.forEach(option => {
-        const optionElement = document.createElement("option");
-        optionElement.value = option;
-        optionElement.textContent = option;
-        dropdown.appendChild(optionElement);
-      });
-    }
 
       const defaultPeriod = `Jan 1
   Jan 2
