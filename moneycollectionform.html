@@ -272,11 +272,6 @@
   
       const periodOptions = (localStorage.getItem("periodOptions") || defaultPeriod).split("\n").filter(Boolean);
       populateDropdown("period", periodOptions);
-          
-      const defaultDept = deptOptions[0]; // Default to the first department
-      const defaultStalls = deptStalls[defaultDept] || [];
-      populateDropdown("stall", defaultStalls); // Populate the stall dropdown with the first department's stalls
-
   
       // Populate the stall options when the department is selected
       document.getElementById("dept").addEventListener("change", () => {
