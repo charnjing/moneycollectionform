@@ -87,10 +87,6 @@
   <div class="message" id="message"></div>
 </form>
 
-<button onclick="resetToDefault()" style="margin-top: 20px; background-color: red;">
-  Reset to Default Settings
-</button>
-
 <!-- Admin Section -->
 <div class="admin-section" id="adminSection">
   <h3>Edit Dropdown Options</h3>
@@ -223,14 +219,7 @@
         showMessage("Failed to sync submission.", "red");
       }
     }
-     
-    function resetToDefault() {
-      if (confirm("Are you sure you want to reset to default settings? This will clear all saved departments, stalls, and periods.")) {
-        localStorage.clear();
-        location.reload();
-      }
-    }
-
+  
     function showMessage(text, color) {
       message.innerText = text;
       message.style.color = color;
@@ -246,7 +235,9 @@
       const defaultDept = `TPY Lor 8 Table Cleaning
   TPY Lor 8 Dishwashing
   TPY Lor 8 Utensils Rental
+  Chinatown
   TPY Lor 4 Table Cleaning
+  Chinatown
   Chinatown`;
       const defaultPeriod = `Jan 1
   Jan 2
