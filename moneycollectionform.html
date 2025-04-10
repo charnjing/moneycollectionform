@@ -277,7 +277,8 @@
           console.log(`Stall Options: ${stallOptions}`);
           populateDropdown("stall", stallOptions);
       });
-      
+    } 
+    
     function populateDropdown(id, options) {
       const select = document.getElementById(id);
       select.innerHTML = `<option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>`;
