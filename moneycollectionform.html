@@ -235,9 +235,7 @@
       const defaultDept = `TPY Lor 8 Table Cleaning
   TPY Lor 8 Dishwashing
   TPY Lor 8 Utensils Rental
-  Chinatown
   TPY Lor 4 Table Cleaning
-  Chinatown
   Chinatown`;
       const defaultPeriod = `Jan 1
   Jan 2
@@ -273,12 +271,13 @@
   
       // Populate the stall options when the department is selected
       document.getElementById("dept").addEventListener("change", () => {
-        const selectedDept = document.getElementById("dept").value;
-        const stallOptions = deptStalls[selectedDept] || [];
-        populateDropdown("stall", stallOptions);
+          const selectedDept = document.getElementById("dept").value;
+          const stallOptions = deptStalls[selectedDept] || [];
+          console.log(`Selected Department: ${selectedDept}`);
+          console.log(`Stall Options: ${stallOptions}`);
+          populateDropdown("stall", stallOptions);
       });
-    }
-    
+      
     function populateDropdown(id, options) {
       const select = document.getElementById(id);
       select.innerHTML = `<option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>`;
