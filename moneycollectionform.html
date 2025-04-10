@@ -262,7 +262,7 @@
   Dec 1
   Dec 2`;
   
-      const deptOptions = (localStorage.getItem("deptOptions") || defaultDept).split("\n").filter(Boolean); 
+      const deptOptions = (defaultDept).split("\n").filter(Boolean); 
       populateDropdown("dept", deptOptions);
       populateDropdown("selectDept", deptOptions);
   
