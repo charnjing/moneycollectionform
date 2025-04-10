@@ -292,7 +292,7 @@
       adminSection.style.display = adminSection.style.display === "none" ? "block" : "none";
   
       if (adminSection.style.display === "block") {
-        const deptOptions = (localStorage.getItem("deptOptions") || "").split("\n").filter(Boolean);
+        const deptOptions = (localStorage.getItem("deptOptions") || "").split("\n").map(dept => dept.trim()).filter(Boolean);
         document.getElementById("adminDept").value = deptOptions.join("\n");
   
         const periodOptions = (localStorage.getItem("periodOptions") || "").split("\n").filter(Boolean);
