@@ -262,7 +262,7 @@
   Dec 1
   Dec 2`;
   
-      const deptOptions = (defaultDept).split("\n").filter(Boolean); 
+      const deptOptions = (localStorage.getItem("deptOptions") || defaultDept).split("\n").filter(Boolean);
       populateDropdown("dept", deptOptions);
       populateDropdown("selectDept", deptOptions);
   
@@ -276,7 +276,7 @@
         populateDropdown("stall", stallOptions);
       });
     }
-  
+    
     function populateDropdown(id, options) {
       const select = document.getElementById(id);
       select.innerHTML = `<option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>`;
