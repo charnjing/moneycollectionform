@@ -276,10 +276,12 @@
       // Populate the stall options when the department is selected
       document.getElementById("dept").addEventListener("change", () => {
         const selectedDept = document.getElementById("dept").value;
+        console.log("Selected Department: ", selectedDept);  // Debugging line
         const stallOptions = deptStalls[selectedDept] || [];
+        console.log("Stall Options: ", stallOptions);  // Debugging line
         populateDropdown("stall", stallOptions);
       });
-    }
+
     
     function populateDropdown(id, options) {
       const select = document.getElementById(id);
