@@ -231,8 +231,12 @@
       }
     }, 10000);
   
-      const defaultDept = "TPY Blk 95\nTPY Blk 100\nTPY Blk 101\nTPY Blk 104\nChinatown";
-
+    function loadDropdownOptions() {
+      const defaultDept = `TPY Lor 8 Table Cleaning
+  TPY Lor 8 Dishwashing
+  TPY Lor 8 Utensils Rental
+  TPY Lor 4 Table Cleaning
+  Chinatown`;
       const defaultPeriod = `Jan 1
   Jan 2
   Feb 1
@@ -275,13 +279,11 @@
   
     function populateDropdown(id, options) {
       const select = document.getElementById(id);
-      select.innerHTML = <option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>;
+      select.innerHTML = `<option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>`;
       options.forEach(option => {
-        select.innerHTML += <option value="${option}">${option}</option>;
+        select.innerHTML += `<option value="${option}">${option}</option>`;
       });
     }
-  
-
   
     function showAdminSection() {
       const adminSection = document.getElementById("adminSection");
