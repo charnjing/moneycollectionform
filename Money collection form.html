@@ -281,9 +281,11 @@
       const select = document.getElementById(id);
       select.innerHTML = `<option value="">Select ${id.charAt(0).toUpperCase() + id.slice(1)}</option>`;
       options.forEach(option => {
-        select.innerHTML += `<option value="${option}">${option}</option>`;
+        const trimmed = option.trim();
+        select.innerHTML += `<option value="${trimmed}">${trimmed}</option>`;
       });
     }
+
   
     function showAdminSection() {
       const adminSection = document.getElementById("adminSection");
